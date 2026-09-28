@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Vulnerabilidades de segurança
+    url: https://github.com/eemtijca/ludus/security/advisories/new
+    about: Reporte falhas de segurança de forma privada, conforme o SECURITY.md.
+  - name: Documentação
+    url: https://github.com/eemtijca/ludus/blob/main/README.md
+    about: Consulte o guia do projeto antes de abrir uma issue.

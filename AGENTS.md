@@ -1,0 +1,51 @@
+# AGENTS.md
+
+Ludus: aplicação web de 12 jogos de investigação para o ensino médio, organizada pelas áreas da BNCC e pensada como recurso de apoio ao Atendimento Educacional Especializado (AEE), com os princípios do Desenho Universal para a Aprendizagem (DUA). Não há contas, banco de dados nem servidor de aplicação: todo o estado fica no `localStorage`. Next.js 16 com App Router e saída `standalone`, React 19, TypeScript, Tailwind CSS 4 e componentes shadcn/ui. Código, comentários, documentação, testes e commits são em português.
+
+## Diretrizes do repositório
+
+- Leia o `CONTRIBUTING.md` antes de qualquer mudança: ele reúne o fluxo de issues, branches, commits, pull requests, padrões de código, acessibilidade e testes.
+- O `next.config.ts` define `typescript.ignoreBuildErrors: true` e `reactStrictMode: false`; rode `npm run tsc` e `npm run lint` em toda mudança.
+- Commits seguem Conventional Commits em português, no imperativo, com escopo opcional: `fix(jogo): corrige ...`. Branches usam `tipo/descricao-curta`; branches de agentes usam o prefixo do agente (`ai/`, `claude/`, `codex/`, `copilot/` ou `cursor/`).
+- O gerenciador é npm, com `package-lock.json`; não use bun, yarn nem pnpm.
+- Nomes de domínio em português (`jogos`, `fases`, `selos`), termos de infraestrutura em inglês quando consagrados (`build`, `standalone`).
+- A suíte de fumaça do Playwright roda primariamente em contêiner: `npm run test:e2e:docker`.
+
+## Padrões de código
+
+- `src/lib/catalog.ts` é a fonte única de verdade: área, nível, códigos BNCC, habilidades, ícone e duração de cada jogo. `src/games/registry.ts` mapeia o identificador ao componente.
+- Cada jogo tem `content.ts` (casos) e `index.tsx` (palco) e usa `useGameSession` e `GameShell`. As fases são fixas (Explorar, Testar e Decidir) e os selos são `lente`, `chave` e `selo-final`.
+- O progresso fica no store Zustand persistido em `ludus:progress:v1` e só acumula: selos nunca expiram.
+- As preferências de acessibilidade ficam em `a11y-provider.tsx` e viram classes no elemento `html` (`a11y-contrast`, `a11y-text-large` e `a11y-reduced-motion`).
+- Componentes e utilitários usam kebab-case; as classes próprias usam o prefixo `ludus-`; os tokens de cor e tipografia ficam em `src/app/globals.css`.
+- Voz, som e conversão de TeX ficam em `src/lib/speech.ts`, `src/lib/sound.ts` e `src/lib/tex.ts`; o MathJax é servido localmente de `public/mathjax`.
+
+## Comandos
+
+Pré-requisitos: Node 20 ou superior e, para a suíte em contêiner, Docker. Não há variáveis de ambiente obrigatórias nem banco.
+
+- `npm install`; `npm run dev` em `http://localhost:3000`; `npm run build`; `npm start`.
+- Verificação antes do pull request: `npm run lint`, `npm run tsc` e `npm run test:e2e:docker`.
+- A suíte em contêiner usa a imagem oficial e espera o aplicativo no ar; `npm run test:e2e` e `npm run test:e2e:install` são a alternativa local.
+- O CI separa `qualidade.yml` (lint, tipos e build) e `testes.yml` (ponta a ponta no Chromium em contêiner).
+
+## Ferramentas externas
+
+- GitHub: opere issues, pull requests, execuções de workflow e releases pelo GitHub CLI (`gh`), não pela interface web. Confirme a sessão com `gh auth status` e, se necessário, autentique com `gh auth login`. Exemplos: `gh issue create`, `gh pr create --fill`, `gh pr checks --watch`, `gh run watch` e `gh release create`. Nunca inclua segredos ou dados de estudantes.
+- Playwright: rode a suíte na imagem oficial da Microsoft, com o aplicativo no ar, usando `npm run test:e2e:docker` (ou `npm run test:e2e:docker:chromium`). O script `tests/playwright-container.sh` aceita `PLAYWRIGHT_IMAGE`, `PLAYWRIGHT_DOCKER_NETWORK` e `PLAYWRIGHT_DOCKER_USER`. Mantenha a versão da imagem igual à do `@playwright/test`. A instalação local é alternativa.
+
+## Arquitetura
+
+- Rotas reais: `/` (hub), `/jogo/<id>`, `/progresso` e `/professores`; as páginas de jogo são pré-renderizadas por `generateStaticParams` e um identificador desconhecido cai na tela de jogo não encontrado.
+- `src/components/app-shell/app-root.tsx` é a casca compartilhada; a navegação fica na barra inferior no celular e no cabeçalho a partir de `sm`, e some dentro do jogo.
+- Para adicionar um jogo: registrar os metadados em `catalog.ts`, criar `content.ts` e `index.tsx` e mapear em `registry.ts`. Hub, progresso, modo professor e acessibilidade cobrem o jogo automaticamente.
+- A aplicação tem uma única rota de API, `GET /api`, com nome, status e horário.
+
+## Armadilhas
+
+- O build ignora erros de tipo e o modo estrito do React está desligado; a verificação real é `npm run tsc` e o lint.
+- `npm start` exige `npm run build` antes, porque executa o standalone.
+- O Prettier ignora `src/components/ui` e `public/mathjax`; não reformate esses diretórios à mão.
+- `next-auth`, `next-intl` e `z-ai-web-dev-sdk` estão declarados no `package.json` sem uso no código: não há autenticação, tradução nem serviço externo.
+- O estado é local ao navegador: não há sincronização entre dispositivos nem coleta de dados pessoais.
+- A leitura em voz depende das vozes pt-BR do sistema e do navegador; todo áudio precisa de alternativa visual e de alternativa por teclado.

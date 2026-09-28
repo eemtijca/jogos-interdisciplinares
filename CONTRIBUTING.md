@@ -1,0 +1,234 @@
+# Contribuindo
+
+Guia de desenvolvimento do Ludus: como preparar o ambiente, abrir issues, propor mudanças, escrever código, testar e documentar. Dúvidas e propostas podem ser abertas como issue; o guia do projeto está no [README.md](README.md). Para vulnerabilidades, siga [SECURITY.md](SECURITY.md), e para a convivência, o [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Antes de começar
+
+- Abra uma issue antes de trabalhar em funcionalidades, jogos novos, mudanças estruturais e correções grandes. Ajustes pequenos e evidentes podem seguir direto para um pull request.
+- Procure issues abertas e fechadas antes de criar uma nova. Havendo uma equivalente, comente para assumir a tarefa e evitar trabalho duplicado.
+- Descreva o contexto com clareza: passos de reprodução, comportamento observado, comportamento esperado e versão ou commit afetado.
+- Mantenha a conversa pública nas issues e nos pull requests. Canais privados ficam reservados para vulnerabilidades e assuntos de conduta.
+- Nunca inclua segredos ou dados reais de estudantes em issues, comandos, commits, capturas ou logs.
+- Vulnerabilidades seguem [SECURITY.md](SECURITY.md), nunca uma issue pública.
+
+## Ambiente de desenvolvimento
+
+Pré-requisitos: Node 20 ou superior e, para a suíte em contêiner, Docker. Não há variáveis de ambiente obrigatórias nem banco de dados.
+
+```bash
+npm install
+npm run dev      # http://localhost:3000
+```
+
+Build de produção:
+
+```bash
+npm run build
+npm start
+```
+
+Comandos úteis na raiz:
+
+| Comando                   | Efeito                                           |
+| ------------------------- | ------------------------------------------------ |
+| `npm run dev`             | Servidor de desenvolvimento na porta 3000.       |
+| `npm run build`           | Build de produção e cópia da saída standalone.   |
+| `npm start`               | Executa o build de produção com Node.            |
+| `npm run lint`            | Análise estática com o ESLint.                   |
+| `npm run tsc`             | Checagem de tipos (o build não a executa).       |
+| `npm run test:e2e:docker` | Suíte de fumaça na imagem oficial do Playwright. |
+| `npm run test:e2e`        | Alternativa local, sobe o servidor sozinho.      |
+
+## Fluxo de contribuição e pull requests
+
+### GitHub CLI
+
+Opere issues, pull requests, execuções de workflow e releases pelo GitHub CLI (`gh`), não pela interface web. Antes de operar, confirme a sessão com `gh auth status` (ou `gh status`) e, se não houver conexão, autentique com `gh auth login`.
+
+Comandos do dia a dia:
+
+- `gh issue create`, `gh issue list` e `gh issue view` para issues.
+- `gh pr create --fill`, `gh pr view` e `gh pr checks --watch` para pull requests.
+- `gh run list`, `gh run watch` e `gh run view --log-failed` para workflows.
+- `gh release create` e `gh release view` para releases.
+
+Nunca inclua segredos ou dados de estudantes em comandos, títulos, corpos ou comentários.
+
+### Issues
+
+Abra uma issue quando:
+
+- encontrar um comportamento incorreto que não consegue corrigir;
+- propor um jogo, uma funcionalidade ou uma melhoria de escopo;
+- discutir uma decisão estrutural ou pedagógica;
+- apontar falha ou lacuna de documentação.
+
+Antes de abrir, procure issues abertas e fechadas com termos relacionados. Os modelos disponíveis são Bug, Melhoria e o contato para segurança; escolha o mais adequado e preencha os campos obrigatórios.
+
+Uma boa issue contém:
+
+- o problema e o resultado esperado;
+- passos de reprodução numerados, com o menor exemplo possível;
+- ambiente envolvido (navegador, dispositivo, versão ou commit);
+- contexto adicional, sem dados reais nem segredos.
+
+Labels usadas: `bug`, `enhancement`, `documentation`, `question`, `good first issue`, `help wanted` e `dependencies`.
+
+A triagem acontece em até 7 dias. Uma issue pode ser fechada sem correção quando estiver fora do escopo, duplicada ou sem informação; nesse caso o motivo é explicado e a porta fica aberta para uma proposta mais precisa. Se a issue aberta for resolvida por conta própria, comente o desfecho e feche.
+
+Relacione a issue ao pull request com `Closes #123` quando a mudança encerrar o assunto, ou `Refs #123` quando apenas caminhar na direção dele. A ligação com `Closes` só funciona no pull request que aponta para a branch padrão.
+
+### Branches
+
+Parta da `main` atualizada e use `tipo/descricao-curta`, em minúsculas, com hífens e sem acento:
+
+- `feat/` para funcionalidades novas e jogos novos.
+- `fix/` para correções.
+- `hotfix/` para correções urgentes.
+- `docs/`, `test/`, `refactor/`, `perf/`, `chore/` e `ci/` para os demais casos.
+
+Branches criadas por agentes de IA usam o prefixo do agente (`ai/`, `claude/`, `codex/`, `copilot/` ou `cursor/`), conforme a [Conventional Branch](https://conventional-branch.github.io/).
+
+### Commits
+
+Siga o [Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/), em português, no imperativo e descrevendo o efeito da mudança, com escopo entre parênteses quando ajudar a localizar a área.
+
+```text
+<tipo>(<escopo opcional>): <descrição>
+
+[corpo opcional]
+
+[rodapé opcional]
+```
+
+Tipos usados:
+
+| Tipo       | Uso                                        |
+| ---------- | ------------------------------------------ |
+| `feat`     | Funcionalidade, jogo ou conteúdo novo.     |
+| `fix`      | Correção de comportamento.                 |
+| `docs`     | Documentação.                              |
+| `test`     | Testes.                                    |
+| `refactor` | Mudança interna sem alterar comportamento. |
+| `perf`     | Desempenho.                                |
+| `chore`    | Manutenção e dependências.                 |
+| `ci`       | Workflows e automação.                     |
+| `build`    | Build e empacotamento.                     |
+| `revert`   | Reversão de commit anterior.               |
+
+Escopos comuns: `plataforma`, `hub`, `jogo`, `progresso`, `professor`, `a11y`, `docs`, `test`, `ci`.
+
+Regras:
+
+- Uma mudança por commit; se o commit cabe em mais de um tipo, divida.
+- Use o corpo para explicar o porquê quando a descrição não bastar.
+- Use rodapé para referências: `Closes #123`, `Refs #123`.
+- Mudança incompatível usa `!` depois do tipo ou escopo, ou o rodapé `BREAKING CHANGE:`.
+- Evite commits de trabalho em andamento na `main`; o histórico da `main` vem de pull requests.
+
+Exemplos do histórico:
+
+```text
+feat(plataforma): reforça acessibilidade, jogos e roteamento
+feat(ui): reformula identidade visual, mobile-first e acessibilidade
+refactor: reorganiza o projeto e padroniza o código em pt-BR
+```
+
+### Pull requests
+
+Um pull request resolve um assunto. Se a mudança misturar refatoração e comportamento, separe em pull requests menores. Refatorações grandes andam em pull request próprio, sem misturar com correção ou funcionalidade.
+
+Abra o pull request cedo, como rascunho, quando quiser feedback durante o trabalho. Antes de pedir revisão, revise o próprio diff, confira se não entrou arquivo acidental e rode as verificações locais.
+
+A descrição deve conter:
+
+- o problema e o resultado esperado;
+- o que mudou e por quê;
+- como validar: comandos executados e, quando aplicável, capturas ou passos de interface;
+- riscos, incluindo mudanças que afetam o progresso salvo no dispositivo;
+- a issue relacionada, com `Closes #123` quando aplicável.
+
+Antes de abrir, rode as verificações locais:
+
+```bash
+npm run lint
+npm run tsc
+npm run test:e2e:docker   # imagem oficial, com o aplicativo no ar
+```
+
+Preencha o checklist do template de pull request. Ao alterar comportamento, atualize o README e o CHANGELOG.md.
+
+### Revisão e integração contínua
+
+Toda mudança passa por revisão e pelos workflows do GitHub Actions:
+
+| Workflow        | Etapas                                                                    |
+| --------------- | ------------------------------------------------------------------------- |
+| `qualidade.yml` | `npm ci`, `lint`, `tsc` e `build` em pull requests.                       |
+| `testes.yml`    | Sobe o aplicativo e roda a suíte do Playwright no Chromium, em contêiner. |
+
+A `main` é protegida por rulesets: pull request obrigatório, checks verdes, conversas resolvidas e merge commit como único método. A autoaprovação não existe no GitHub; donos da organização podem mesclar os próprios pull requests com o bypass da regra de revisão, mas continuam sujeitos aos checks de qualidade.
+
+Corrija as falhas antes de pedir nova revisão. Pull requests sem CI verde não são mesclados. Evite force-push depois que a revisão começar; se precisar reescrever a história, explique o motivo na conversa.
+
+### Estratégia de merge
+
+Mescle por merge commit, preservando os commits da branch e o contexto da revisão. Apague a branch após o merge. Não faça force-push em `main` nem reescreva o histórico já mesclado.
+
+## Padrões de código
+
+- Código e comentários em português, curtos e diretos.
+- `src/lib/catalog.ts` é a fonte única de verdade dos jogos; `src/games/registry.ts` mapeia o identificador ao componente. Nunca duplique metadados fora do catálogo.
+- Cada jogo tem `content.ts` com os casos e `index.tsx` com o palco, usando `useGameSession` e `GameShell`. As fases são Explorar, Testar e Decidir, e os selos são `lente`, `chave` e `selo-final`.
+- Componentes e utilitários usam kebab-case; classes próprias usam o prefixo `ludus-`; tokens de cor e tipografia ficam em `src/app/globals.css`.
+- O progresso usa o store Zustand com a chave `ludus:progress:v1` e nunca regride.
+
+### Convenção editorial
+
+- Documentação e textos de interface usam português brasileiro, tom técnico e impessoal, sem travessão, meia-risca, setas ou símbolos decorativos. Use dois-pontos, vírgula, parênteses, `...` e aspas retas.
+- Evite segunda pessoa na documentação e nos textos institucionais.
+- No conteúdo didático dos jogos, a narração em segunda pessoa é intencional, as citações podem usar aspas e as setas ficam restritas à notação matemática e química.
+
+### Acessibilidade e DUA
+
+Acessibilidade é requisito do produto, não enfeite:
+
+- Sem cronômetro, sem punição e sem caminho único: o erro nunca bloqueia e o progresso só soma.
+- Todo áudio tem alternativa visual e todo controle funciona por teclado, com alvos de toque confortáveis.
+- Respeite as preferências de `a11y-provider.tsx` (alto contraste, texto amplo e movimento reduzido) e a leitura em voz de `src/lib/speech.ts`.
+- Novos jogos passam pelos mesmos componentes de moldura, feedback e veredito, herdando os recursos de acessibilidade.
+
+## Testes e qualidade
+
+A suíte do Playwright cobre o hub, uma partida completa de fumaça, o progresso, o modo professor, a acessibilidade e a API de saúde.
+
+```bash
+npm run test:e2e:docker            # todos os projetos, na imagem oficial
+npm run test:e2e:docker:chromium   # apenas o Chromium
+npm run test:e2e                   # alternativa local, sobe o servidor
+```
+
+Regras:
+
+- Cada spec cria o próprio estado e limpa o que alterar no `localStorage`.
+- As preferências de acessibilidade são restauradas ao final de cada teste.
+- Ao corrigir um bug, adicione um caso que falharia antes da correção.
+- O `next.config.ts` ignora erros de tipo no build; `npm run tsc` é obrigatório no fluxo local e no CI.
+
+## Documentação
+
+O [README.md](README.md) é a fonte principal: mantenha a stack, os scripts, a arquitetura e o catálogo de jogos atualizados ao adicionar ou mudar um jogo. Mudanças estruturais relevantes podem ganhar uma nota curta em `docs/`, seguindo o formato das existentes.
+
+## Releases e changelog
+
+As mudanças relevantes são registradas em [CHANGELOG.md](CHANGELOG.md), no formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), com versionamento semântico. Mova as entradas da seção Não publicado para a versão correspondente ao publicar.
+
+Crie releases pelo GitHub CLI:
+
+```bash
+gh release create v1.1.0 --generate-notes
+```
+
+## Suporte e dúvidas
+
+Use as issues para dúvidas, sugestões e problemas. A triagem acontece em até 7 dias. Para vulnerabilidades, siga [SECURITY.md](SECURITY.md); para conduta, o [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

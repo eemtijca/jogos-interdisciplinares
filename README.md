@@ -7,7 +7,6 @@ A coleção reúne 12 jogos, três por área (Linguagens, Matemática, Ciências
 ## Requisitos
 
 - Node.js 20 ou superior
-- Bun 1.1 ou superior (opcional, utilizado pelo script de produção)
 
 ## Instalação e execução
 
@@ -23,24 +22,24 @@ npm run build
 npm run start
 ```
 
-O build usa a saída `standalone` do Next.js e copia os arquivos estáticos e a pasta `public` para `.next/standalone`. O script `start` executa o servidor standalone com Bun. Sem Bun instalado, use:
-
-```bash
-NODE_ENV=production node .next/standalone/server.js
-```
+O build usa a saída `standalone` do Next.js e copia os arquivos estáticos e a pasta `public` para `.next/standalone`. O script `start` executa o servidor standalone com Node.
 
 Não existem variáveis de ambiente obrigatórias nem banco de dados. Funciona em qualquer hospedagem Node.js, como Vercel, Railway ou um servidor local da escola.
 
 ## Scripts
 
-| Script  | Comando                                  | Função                                    |
-| ------- | ---------------------------------------- | ----------------------------------------- |
-| `dev`   | `next dev -p 3000`                       | Servidor de desenvolvimento na porta 3000 |
-| `build` | `next build` e cópia da saída standalone | Build de produção                         |
-| `start` | `bun .next/standalone/server.js`         | Executa o build de produção               |
-| `lint`  | `eslint .`                               | Análise estática do código                |
+| Script             | Comando                                  | Função                                    |
+| ------------------ | ---------------------------------------- | ----------------------------------------- |
+| `dev`              | `next dev -p 3000`                       | Servidor de desenvolvimento na porta 3000 |
+| `build`            | `next build` e cópia da saída standalone | Build de produção                         |
+| `start`            | `node .next/standalone/server.js`        | Executa o build de produção               |
+| `lint`             | `eslint .`                               | Análise estática do código                |
+| `tsc`              | `tsc --noEmit`                           | Checagem de tipos                         |
+| `test:e2e`         | `playwright test`                        | Suíte de fumaça no navegador              |
+| `test:e2e:docker`  | imagem oficial do Playwright             | Alternativa principal, em contêiner       |
+| `test:e2e:install` | instala os navegadores no host           | Alternativa local                         |
 
-Observação: o projeto não possui suíte de testes automatizados. A verificação principal é o `lint`, complementada por `npx tsc --noEmit` para checagem de tipos.
+Observação: o `next.config.ts` ignora erros de tipo no build, por isso a checagem de tipos roda separadamente com `npm run tsc`. A suíte de fumaça cobre o hub, um jogo, o progresso, o modo professor, a acessibilidade e a API de saúde.
 
 ## Stack
 
@@ -170,8 +169,8 @@ Existe um único endpoint de verificação de saúde em `GET /api`, que responde
 
 ## Limitações conhecidas
 
-- Não há suíte de testes automatizados.
-- `next.config.ts` define `typescript.ignoreBuildErrors: true` e `reactStrictMode: false`. Por isso, a checagem de tipos deve ser executada separadamente com `npx tsc --noEmit`.
+- A suíte automatizada é de fumaça, sem testes de unidade.
+- `next.config.ts` define `typescript.ignoreBuildErrors: true` e `reactStrictMode: false`. Por isso, a checagem de tipos deve ser executada separadamente com `npm run tsc`.
 - O estado é local ao navegador. Não há sincronização entre dispositivos.
 - A leitura em voz alta depende da disponibilidade de vozes pt-BR no sistema operacional e no navegador.
 
