@@ -1,0 +1,63 @@
+name: Testes
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: testes-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Ponta a ponta no Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Subir aplicativo
+        run: nohup npm run dev > /tmp/ludus-dev.log 2>&1 &
+
+      - name: Aguardar a aplicação
+        run: |
+          for tentativa in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3000/api > /dev/null; then
+              echo "Aplicação disponível. Tentativas: ${tentativa}."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "A aplicação não respondeu no tempo esperado."
+          cat /tmp/ludus-dev.log
+          exit 1
+
+      - name: Ponta a ponta no contêiner
+        run: npm run test:e2e:docker:chromium
+
+      - name: Publicar relatório do Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      - name: Exibir logs em caso de falha
+        if: failure()
+        run: cat /tmp/ludus-dev.log

@@ -1,0 +1,63 @@
+name: Bug
+description: Reporte um comportamento incorreto.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar. Não inclua dados reais de estudantes.
+  - type: checkboxes
+    id: busca
+    attributes:
+      label: Antes de abrir
+      options:
+        - label: Procurei issues abertas e fechadas e não encontrei uma equivalente.
+          required: true
+  - type: textarea
+    id: descricao
+    attributes:
+      label: Descrição
+      description: O que aconteceu e qual era o comportamento esperado?
+    validations:
+      required: true
+  - type: textarea
+    id: reproducao
+    attributes:
+      label: Passos para reproduzir
+      placeholder: |
+        1. Acesse ...
+        2. Toque em ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área afetada
+      options:
+        - Hub de jogos
+        - Um jogo específico
+        - Progresso
+        - Modo professor
+        - Acessibilidade
+        - Navegação
+        - Não se aplica
+    validations:
+      required: false
+  - type: textarea
+    id: ambiente
+    attributes:
+      label: Ambiente
+      description: Navegador, dispositivo e sistema operacional, sem dados sensíveis.
+      render: markdown
+    validations:
+      required: false
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto adicional
+      description: Capturas e logs relevantes, sem segredos nem dados reais.
+    validations:
+      required: false
