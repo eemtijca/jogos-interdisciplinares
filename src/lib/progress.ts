@@ -18,8 +18,10 @@ export interface GameProgress {
   completions: number;
   /** Última vez que o jogo foi concluído (ISO string). */
   lastCompletedAt: string | null;
-  /** Caso/variante da última conclusão (para "continuar de onde parou"). */
+  /** Caso/variante da última conclusão. */
   lastCaseId?: string;
+  /** Casos diferentes concluídos, sem impedir novas partidas do mesmo caso. */
+  completedCaseIds: string[];
 }
 
 export type ProgressMap = Record<string, GameProgress>;
@@ -43,6 +45,7 @@ const emptyProgress = (): GameProgress => ({
   badges: [],
   completions: 0,
   lastCompletedAt: null,
+  completedCaseIds: [],
 });
 
 function readStorage(): ProgressMap {
@@ -50,7 +53,7 @@ function readStorage(): ProgressMap {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
-    const parsed = JSON.parse(raw) as ProgressMap;
+    const parsed = JSON.parse(raw) as Record<string, Partial<GameProgress>>;
     if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
       return {};
     }
@@ -58,19 +61,40 @@ function readStorage(): ProgressMap {
     const safe: ProgressMap = {};
     for (const game of GAMES) {
       const entry = parsed[game.id];
-      if (!entry) continue;
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+      const completions =
+        typeof entry.completions === "number" &&
+        Number.isFinite(entry.completions) &&
+        entry.completions > 0
+          ? Math.floor(entry.completions)
+          : 0;
+      const lastCaseId =
+        typeof entry.lastCaseId === "string" && entry.lastCaseId.trim()
+          ? entry.lastCaseId
+          : undefined;
+      const completedCaseIds = Array.isArray(entry.completedCaseIds)
+        ? entry.completedCaseIds.filter((id): id is string => typeof id === "string" && !!id.trim())
+        : [];
+      // Migra o último caso conhecido sem perder o progresso da versão anterior.
+      if (completions > 0 && lastCaseId) completedCaseIds.push(lastCaseId);
       safe[game.id] = {
         badges: Array.isArray(entry.badges)
-          ? entry.badges.filter(
-              (b): b is BadgeId => b === "lente" || b === "chave" || b === "selo-final",
-            )
+          ? [
+              ...new Set(
+                entry.badges.filter(
+                  (b): b is BadgeId => b === "lente" || b === "chave" || b === "selo-final",
+                ),
+              ),
+            ]
           : [],
-        completions:
-          typeof entry.completions === "number" && entry.completions > 0
-            ? Math.floor(entry.completions)
-            : 0,
-        lastCompletedAt: typeof entry.lastCompletedAt === "string" ? entry.lastCompletedAt : null,
-        lastCaseId: typeof entry.lastCaseId === "string" ? entry.lastCaseId : undefined,
+        completions,
+        lastCompletedAt:
+          typeof entry.lastCompletedAt === "string" &&
+          Number.isFinite(Date.parse(entry.lastCompletedAt))
+            ? entry.lastCompletedAt
+            : null,
+        lastCaseId,
+        completedCaseIds: [...new Set(completedCaseIds)],
       };
     }
     return safe;
@@ -98,6 +122,7 @@ export const useProgress = create<ProgressState>((set, get) => ({
   },
 
   awardBadge: (gameId, badge) => {
+    get().load();
     const current = get().progress[gameId] ?? emptyProgress();
     if (current.badges.includes(badge)) return;
     const next: ProgressMap = {
@@ -109,6 +134,7 @@ export const useProgress = create<ProgressState>((set, get) => ({
   },
 
   completeGame: (gameId, caseId) => {
+    get().load();
     const current = get().progress[gameId] ?? emptyProgress();
     const next: ProgressMap = {
       ...get().progress,
@@ -117,6 +143,9 @@ export const useProgress = create<ProgressState>((set, get) => ({
         completions: current.completions + 1,
         lastCompletedAt: new Date().toISOString(),
         lastCaseId: caseId ?? current.lastCaseId,
+        completedCaseIds: caseId
+          ? [...new Set([...current.completedCaseIds, caseId])]
+          : current.completedCaseIds,
       },
     };
     set({ progress: next });

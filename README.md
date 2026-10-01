@@ -2,7 +2,7 @@
 
 Aplicação web de jogos educacionais de investigação para o ensino médio, organizada por áreas do conhecimento da BNCC. O projeto é um recurso de apoio ao Atendimento Educacional Especializado (AEE) e segue os princípios do Desenho Universal para a Aprendizagem (DUA): atividades sem cronômetro, leitura em voz alta, repetição livre e ritmo próprio do estudante.
 
-A coleção reúne 12 jogos, três por área (Linguagens, Matemática, Ciências da Natureza e Ciências Humanas), e cada jogo oferece três casos. Não há contas, banco de dados ou servidor de aplicação: todo o estado permanece no navegador do dispositivo.
+A coleção reúne 16 jogos, quatro por área (Linguagens, Matemática, Ciências da Natureza e Ciências Humanas). Os quatro novos jogos oferecem três casos cada, com pistas opcionais e seleção livre de casos. Não há contas, banco de dados ou servidor de aplicação: todo o estado permanece no navegador do dispositivo.
 
 ## Requisitos
 
@@ -82,9 +82,13 @@ Cada jogo é composto por conteúdo (`content.ts`) e palco (`index.tsx`). A mec�
 
 As fases são fixas para toda a coleção: Explorar, Testar e Decidir. Os selos são `lente`, `chave` e `selo-final`, concedidos ao avançar de fase e ao concluir a partida.
 
+A sessão registra apenas uma conclusão por partida, mesmo com ativações repetidas. Recomeçar libera uma nova partida sem remover selos persistidos. Mudanças de fase limpam o feedback anterior e interrompem a leitura em voz; o foco por teclado acompanha as instruções e o veredito.
+
+Os jogos Sentido em Contexto, Dados em Debate, Água em Alerta e Memória do Bairro usam o palco compartilhado `src/games/_shared/investigation-game.tsx`. Cada `content.ts` define três evidências, questões de teste e decisão, pistas, explicações para cada escolha e um veredito. O palco oferece escolha de casos, tabelas acessíveis quando necessárias e leitura das pistas. Após uma conclusão, a opção de outro caso prioriza um caso ainda não concluído.
+
 ### Progresso
 
-`src/lib/progress.ts` mantém o progresso em um store Zustand persistido no `localStorage` sob a chave `ludus:progress:v1`. O registro inclui selos, número de partidas concluídas, data da última conclusão e o último caso jogado. Progresso apenas acumula: selos não expiram.
+`src/lib/progress.ts` mantém o progresso em um store Zustand persistido no `localStorage` sob a chave `ludus:progress:v1`. O registro inclui selos, número de partidas concluídas, data da última conclusão, último caso concluído e `completedCaseIds` (casos diferentes concluídos). Repetir um caso soma uma partida, sem duplicar esse caso na coleção. Dados antigos continuam compatíveis: o último caso conhecido é incorporado à lista e os demais casos históricos não podem ser inferidos. Selos duplicados e entradas inválidas são sanitizados. Progresso apenas acumula: selos não expiram.
 
 ### Acessibilidade
 
@@ -132,6 +136,15 @@ src/
 | Humanas    | 1     | Fonte Histórica       | EM13CHS101 | Crítica de fontes históricas                      |
 | Humanas    | 2     | Território em Disputa | EM13CHS206 | Uso do solo e risco hidrológico                   |
 | Humanas    | 3     | Dilema Ético          | EM13CHS502 | Conflitos entre renda, saúde e legislação         |
+
+Novos jogos da coleção:
+
+| Área       | Nível | Jogo                | BNCC                   | Foco                                                 |
+| ---------- | ----- | ------------------- | ---------------------- | ---------------------------------------------------- |
+| Linguagens | 1     | Sentido em Contexto | EM13LP06               | Efeitos de sentido, avaliações e graus de certeza    |
+| Matemática | 2     | Dados em Debate     | EM13MAT316, EM13MAT202 | Média, mediana e limites de uma amostra              |
+| Natureza   | 1     | Água em Alerta      | EM13CNT104             | Riscos, misturas e limites das evidências sobre água |
+| Humanas    | 1     | Memória do Bairro   | EM13CHS101             | Comparação de fotos, relatos e mapas                 |
 
 ## Design system
 

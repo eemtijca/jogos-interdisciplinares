@@ -205,6 +205,14 @@ export function ProgressDashboard() {
                                 }`
                               : "A explorar"}
                           </span>
+                          {!!p?.completedCaseIds.length && (
+                            <span className="block text-xs font-semibold text-ink-soft">
+                              {p.completedCaseIds.length}{" "}
+                              {p.completedCaseIds.length === 1
+                                ? "caso diferente concluído"
+                                : "casos diferentes concluídos"}
+                            </span>
+                          )}
                         </span>
                         <span className="flex items-center gap-0.5" aria-hidden>
                           {([ScanSearch, KeyRound, Medal] as const).map((Icon, i) => (

@@ -18,6 +18,10 @@ import { GeneDilemaGame } from "./gene-dilema";
 import { FonteHistoricaGame } from "./fonte-historica";
 import { TerritorioDisputaGame } from "./territorio-disputa";
 import { DilemaEticoGame } from "./dilema-etico";
+import { SentidoContextoGame } from "./sentido-contexto";
+import { DadosDebateGame } from "./dados-debate";
+import { AguaAlertaGame } from "./agua-alerta";
+import { MemoriaBairroGame } from "./memoria-bairro";
 
 export type GameComponent = ComponentType<{ onExit: () => void }>;
 
@@ -34,4 +38,8 @@ export const GAME_COMPONENTS: Record<string, GameComponent> = {
   "fonte-historica": FonteHistoricaGame,
   "territorio-disputa": TerritorioDisputaGame,
   "dilema-etico": DilemaEticoGame,
+  "sentido-contexto": SentidoContextoGame,
+  "dados-debate": DadosDebateGame,
+  "agua-alerta": AguaAlertaGame,
+  "memoria-bairro": MemoriaBairroGame,
 };

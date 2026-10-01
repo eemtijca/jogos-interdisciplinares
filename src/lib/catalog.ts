@@ -318,6 +318,83 @@ export const GAMES: GameMeta[] = [
     ],
     objective: "Vivenciar dilemas éticos do mundo do trabalho acompanhando seus custos.",
   },
+  {
+    id: "sentido-contexto",
+    title: "Sentido em Contexto",
+    tagline: "Uma palavra muda a notícia. Qual efeito ela produz?",
+    description:
+      "Investigue manchetes, convites e previsões. Distinga fatos, avaliações e graus de certeza para escolher uma comunicação clara e acolhedora.",
+    area: "linguagens",
+    level: 1,
+    bncc: ["EM13LP06"],
+    tags: ["Língua Portuguesa", "Interpretação", "Linguagem"],
+    icon: "BookOpenText",
+    minutes: 8,
+    skills: [
+      "Reconhecer avaliações e graus de certeza",
+      "Relacionar palavras a seus efeitos de sentido",
+      "Reformular mensagens respeitando as evidências",
+    ],
+    objective: "Analisar efeitos de sentido das escolhas de palavras em situações de comunicação.",
+  },
+  {
+    id: "dados-debate",
+    title: "Dados em Debate",
+    tagline: "Os números chegaram. A conclusão precisa de contexto.",
+    description:
+      "Leia tabelas de leitura, trajetos e uma enquete. Compare média e mediana e investigue quem uma amostra realmente representa.",
+    area: "matematica",
+    level: 2,
+    bncc: ["EM13MAT316", "EM13MAT202"],
+    tags: ["Estatística", "Média", "Mediana", "Pesquisa"],
+    icon: "TrendingUp",
+    minutes: 10,
+    skills: [
+      "Calcular e interpretar média e mediana",
+      "Reconhecer o efeito de valores extremos",
+      "Avaliar os limites de uma amostra",
+    ],
+    objective:
+      "Interpretar medidas de tendência central e avaliar conclusões de pesquisas em contexto.",
+  },
+  {
+    id: "agua-alerta",
+    title: "Água em Alerta",
+    tagline: "Água transparente, mistura ou riacho: o que as pistas permitem dizer?",
+    description:
+      "Investigue aparência da água, separação de misturas e observações de um riacho. Reconheça limites dos testes e decisões que evitam exposição a riscos.",
+    area: "natureza",
+    level: 1,
+    bncc: ["EM13CNT104"],
+    tags: ["Química", "Água", "Ambiente", "Misturas"],
+    icon: "gota",
+    minutes: 8,
+    skills: [
+      "Distinguir aparência e segurança da água",
+      "Reconhecer os limites de uma filtração simples",
+      "Separar observações de hipóteses sobre contaminação",
+    ],
+    objective: "Avaliar evidências e riscos relacionados à água e aos materiais no ambiente.",
+  },
+  {
+    id: "memoria-bairro",
+    title: "Memória do Bairro",
+    tagline: "Fotos, relatos e mapas contam a mesma história?",
+    description:
+      "Compare fontes sobre a praça, a feira e um riacho. Reconheça mudanças, perspectivas e lacunas antes de montar a memória da comunidade.",
+    area: "humanas",
+    level: 1,
+    bncc: ["EM13CHS101"],
+    tags: ["História", "Memória", "Fontes", "Comunidade"],
+    icon: "ScrollText",
+    minutes: 8,
+    skills: [
+      "Comparar fontes de épocas diferentes",
+      "Reconhecer perspectivas em relatos",
+      "Distinguir evidências, hipóteses e lacunas",
+    ],
+    objective: "Investigar a memória de uma comunidade por meio da comparação crítica de fontes.",
+  },
 ];
 
 export const GAME_BY_ID: Record<string, GameMeta> = Object.fromEntries(GAMES.map((g) => [g.id, g]));

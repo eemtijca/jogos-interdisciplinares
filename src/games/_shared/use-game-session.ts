@@ -12,7 +12,7 @@
  * Princípios DUA/AEE: sem cronômetro, sem punição, progresso só soma.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useProgress, type BadgeId } from "@/lib/progress";
 import { playBadge, playCorrect, playError, playVictory } from "@/lib/sound";
 import { speak, stopSpeech } from "@/lib/speech";
@@ -63,6 +63,11 @@ export function useGameSession(gameId: string): GameSession {
   const [feedback, setFeedback] = useState<FeedbackMessage | null>(null);
   const [verdict, setVerdict] = useState<VerdictPayload | null>(null);
   const [generation, setGeneration] = useState(0);
+  const finishedRef = useRef(false);
+  const awardedRef = useRef(new Set<BadgeId>());
+  const phaseRef = useRef<Phase>(1);
+
+  useEffect(() => () => stopSpeech(), []);
 
   const { awardBadge, completeGame } = useProgress.getState();
   const soundRef = useRef(true);
@@ -71,11 +76,10 @@ export function useGameSession(gameId: string): GameSession {
 
   const award = useCallback(
     (badge: BadgeId) => {
-      setBadges((prev) => {
-        if (prev.includes(badge)) return prev;
-        if (soundRef.current) playBadge();
-        return [...prev, badge];
-      });
+      if (awardedRef.current.has(badge)) return;
+      awardedRef.current.add(badge);
+      setBadges((prev) => [...prev, badge]);
+      if (soundRef.current) playBadge();
       awardBadge(gameId, badge);
     },
     [gameId, awardBadge],
@@ -83,6 +87,10 @@ export function useGameSession(gameId: string): GameSession {
 
   const setPhase = useCallback(
     (next: Phase) => {
+      if (finishedRef.current || phaseRef.current === next) return;
+      phaseRef.current = next;
+      stopSpeech();
+      setFeedback(null);
       setPhaseState(next);
       if (next >= 2) award("lente");
       if (next >= 3) award("chave");
@@ -92,6 +100,7 @@ export function useGameSession(gameId: string): GameSession {
 
   const pushFeedback = useCallback(
     (kind: FeedbackMessage["kind"], text: string, speakText: boolean) => {
+      if (finishedRef.current) return;
       setFeedback({ kind, text });
       if (soundRef.current) {
         if (kind === "success") playCorrect();
@@ -127,6 +136,15 @@ export function useGameSession(gameId: string): GameSession {
 
   const finish = useCallback(
     (payload: VerdictPayload) => {
+      // Bloqueia eventos repetidos antes mesmo do próximo render.
+      if (finishedRef.current) return;
+      finishedRef.current = true;
+      stopSpeech();
+      setFeedback(null);
+      phaseRef.current = 3;
+      setPhaseState(3);
+      award("lente");
+      award("chave");
       award("selo-final");
       setVerdict(payload);
       if (soundRef.current) playVictory();
@@ -137,6 +155,9 @@ export function useGameSession(gameId: string): GameSession {
 
   const restart = useCallback(() => {
     stopSpeech();
+    finishedRef.current = false;
+    awardedRef.current.clear();
+    phaseRef.current = 1;
     setPhaseState(1);
     setBadges([]);
     setFeedback(null);

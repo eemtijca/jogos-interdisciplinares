@@ -28,6 +28,7 @@ import { SpeakerButton } from "./speaker-button";
 import { useA11y } from "@/components/a11y/a11y-provider";
 import { stopSpeech } from "@/lib/speech";
 import { cn } from "@/lib/utils";
+import { useEffect, useRef } from "react";
 
 export interface GameShellProps {
   game: GameMeta;
@@ -56,6 +57,11 @@ export function GameShell({
 }: GameShellProps) {
   const area = AREAS[game.area];
   const a11y = useA11y();
+  const instructionRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (!session.verdict) instructionRef.current?.focus({ preventScroll: true });
+  }, [session.phase, session.generation, session.verdict]);
 
   const handleExit = () => {
     stopSpeech();
@@ -120,7 +126,7 @@ export function GameShell({
           <p className="font-display text-[0.7rem] font-bold uppercase tracking-[0.12em] text-ink-faint">
             Missão
           </p>
-          <p className="truncate font-display text-base font-bold text-ink sm:text-lg">{mission}</p>
+          <p className="font-display text-base font-bold text-ink sm:text-lg">{mission}</p>
         </div>
       </section>
 
@@ -161,7 +167,11 @@ export function GameShell({
                 AREA_BG_SOFT[game.area],
               )}
             >
-              <p className="flex-1 font-display text-base font-bold leading-snug text-ink sm:text-lg">
+              <p
+                ref={instructionRef}
+                tabIndex={-1}
+                className="flex-1 font-display text-base font-bold leading-snug text-ink sm:text-lg"
+              >
                 {instruction}
               </p>
               <SpeakerButton

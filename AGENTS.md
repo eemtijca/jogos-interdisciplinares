@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Ludus: aplicação web de 12 jogos de investigação para o ensino médio, organizada pelas áreas da BNCC e pensada como recurso de apoio ao Atendimento Educacional Especializado (AEE), com os princípios do Desenho Universal para a Aprendizagem (DUA). Não há contas, banco de dados nem servidor de aplicação: todo o estado fica no `localStorage`. Next.js 16 com App Router e saída `standalone`, React 19, TypeScript, Tailwind CSS 4 e componentes shadcn/ui. Código, comentários, documentação, testes e commits são em português.
+Ludus: aplicação web de 16 jogos de investigação para o ensino médio, organizada pelas áreas da BNCC e pensada como recurso de apoio ao Atendimento Educacional Especializado (AEE), com os princípios do Desenho Universal para a Aprendizagem (DUA). Não há contas, banco de dados nem servidor de aplicação: todo o estado fica no `localStorage`. Next.js 16 com App Router e saída `standalone`, React 19, TypeScript, Tailwind CSS 4 e componentes shadcn/ui. Código, comentários, documentação, testes e commits são em português.
 
 ## Diretrizes do repositório
 
