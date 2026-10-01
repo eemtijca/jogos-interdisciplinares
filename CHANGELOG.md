@@ -22,6 +22,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ### Modificado
 
+- Catálogo ordenado por área e nível crescente em todas as telas, incluindo filtros e recomendações.
+
 - Sessão idempotente na conclusão, sem efeitos sonoros dentro de atualizadores de estado.
 - Feedback e leitura reiniciados nas mudanças de fase; foco por teclado acompanha instruções e veredito.
 - Progresso antigo preservado, com sanitização de selos duplicados, entradas inválidas e datas.

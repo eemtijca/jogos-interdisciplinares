@@ -2,6 +2,25 @@ import { expect, test } from "@playwright/test";
 import { GAMES } from "../../src/lib/catalog";
 
 test.describe("Progresso", () => {
+  test("recomenda outro jogo de nível 1 antes de avançar para o nível 2", async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        "ludus:progress:v1",
+        JSON.stringify({
+          "fonte-suspeita": {
+            badges: ["lente", "chave", "selo-final"],
+            completions: 1,
+            lastCompletedAt: null,
+          },
+        }),
+      );
+    });
+    await page.goto("/progresso");
+    const recommendations = page.getByRole("region", { name: "Próximas investigações" });
+    await expect(recommendations.getByRole("link", { name: /Sentido em Contexto/ })).toBeVisible();
+    await expect(recommendations.getByRole("link", { name: /Revisor Crítico/ })).toHaveCount(0);
+  });
+
   test("parte do zero e reflete o progresso salvo no dispositivo", async ({ page }) => {
     await page.goto("/progresso");
     await expect(page.getByRole("heading", { name: "Seu progresso" })).toBeVisible();

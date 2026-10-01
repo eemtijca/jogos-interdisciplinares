@@ -73,6 +73,8 @@ As páginas de jogo são pré-renderizadas em tempo de build a partir do catálo
 
 `src/lib/catalog.ts` é a fonte única de verdade da coleção: área, nível, códigos BNCC, habilidades, ícone e duração estimada de cada jogo. `src/games/registry.ts` mapeia o identificador do catálogo ao componente React correspondente.
 
+O catálogo exporta os jogos ordenados por área e nível crescente. Jogos do mesmo nível mantêm a ordem de cadastro. Hub, filtros, progresso, recomendações e modo professor usam essa sequência.
+
 ### Sessão de jogo
 
 Cada jogo é composto por conteúdo (`content.ts`) e palco (`index.tsx`). A mecânica comum fica em dois lugares:

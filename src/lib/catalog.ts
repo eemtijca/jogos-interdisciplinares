@@ -85,7 +85,7 @@ export const LEVEL_LABEL: Record<Level, string> = {
   3: "Nível 3 · Domínio",
 };
 
-export const GAMES: GameMeta[] = [
+const GAME_DEFINITIONS: GameMeta[] = [
   // ---------------------------------------------------------------- Linguagens
   {
     id: "fonte-suspeita",
@@ -396,6 +396,11 @@ export const GAMES: GameMeta[] = [
     objective: "Investigar a memória de uma comunidade por meio da comparação crítica de fontes.",
   },
 ];
+
+/** Toda a aplicação consome a mesma ordem, inclusive filtros e recomendações. */
+export const GAMES: GameMeta[] = [...GAME_DEFINITIONS].sort(
+  (a, b) => AREA_ORDER.indexOf(a.area) - AREA_ORDER.indexOf(b.area) || a.level - b.level,
+);
 
 export const GAME_BY_ID: Record<string, GameMeta> = Object.fromEntries(GAMES.map((g) => [g.id, g]));
 
