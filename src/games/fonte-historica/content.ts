@@ -1,285 +1,366 @@
-/**
- * Fonte Histórica: conteúdo dos casos.
- *
- * Cada caso traz um post candidato ao mural, 3 peças documentais
- * (com autoria, data e intenção explícitas), pergunta de cruzamento
- * e decisão editorial.
- */
+import type { InvestigationCase } from "@/games/_shared/investigation-types";
 
-export interface HistoricCase {
-  id: string;
-  mission: string;
-  context: {
-    channel: string;
-    meta: string;
-    message: string;
-    annotation: string;
-  };
-  cards: {
-    icon: string;
-    category: string;
-    hook: string;
-    evidence: string;
-  }[];
-  crossQuestion: string;
-  crossOptions: { icon: string; title: string; subtitle?: string }[];
-  crossCorrect: number;
-  crossHint: string;
-  crossWrong: string[];
-  decisionPrompt: string;
-  decisions: {
-    id: string;
-    icon: string;
-    title: string;
-    subtitle: string;
-  }[];
-  expected: string;
-  verdict: {
-    title: string;
-    text: string;
-    detail: { label: string; text: string };
-  };
-}
-
-export const CASES: HistoricCase[] = [
+/** Documentos e números dos casos são ficcionais para fins didáticos. */
+export const CASES: InvestigationCase[] = [
   {
     id: "seca-ceara",
-    mission: "O post da seca",
-    context: {
-      channel: "Mural da escola · história do Brasil",
-      meta: "agendado para publicar às 17h",
-      message: "“A seca que castiga o Ceará hoje: veja a foto da tragédia acontecendo agora.”",
-      annotation: "O post vem com uma foto em preto e branco anexada.",
+    title: "Uma fotografia com história",
+    focus: "Autoria, proveniência e datação",
+    context:
+      "Uma exposição sobre memória das secas quer usar uma fotografia sem legenda como registro do presente.",
+    mission: "Construa uma legenda que distinga descrição, datação e incerteza.",
+    evidence: [
+      {
+        id: "foto",
+        title: "Descrição da fotografia",
+        text: "Três pessoas e duas malas junto a uma estrada de terra. A imagem não permite identificar motivo da viagem ou local.",
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+      {
+        id: "catalogo",
+        title: "Ficha do acervo fictício",
+        text: 'Entrada: "Deslocamento de famílias, interior do Ceará, entre 1911 e 1915". Autor desconhecido; data estimada a partir do conjunto recebido de uma família.',
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+      {
+        id: "carta",
+        title: "Carta do conjunto",
+        text: "Uma carta de 1913 relata saída de uma família por falta de trabalho e água. Não identifica as pessoas da fotografia.",
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+    ],
+    tasks: [
+      {
+        id: "data",
+        kind: "choice",
+        prompt: "Qual legenda respeita a proveniência?",
+        options: [
+          {
+            id: "exata",
+            label: "Retirantes de uma seca específica em 1911, fotógrafo identificado.",
+            feedback:
+              "A ficha indica intervalo, autor desconhecido e não identifica o evento exato.",
+          },
+          {
+            id: "estimada",
+            label:
+              "Deslocamento de famílias no interior do Ceará, entre 1911 e 1915, segundo a ficha do acervo; autor desconhecido.",
+            feedback: "O texto mantém a datação como estimativa atribuída.",
+          },
+          {
+            id: "atual",
+            label: "Famílias saem hoje por causa da seca, como mostra a foto.",
+            feedback: "A proveniência histórica contradiz o uso como registro atual.",
+          },
+        ],
+        answer: "estimada",
+        hint: "Diferencie o que a imagem mostra do que a ficha atribui.",
+        explanation: "A legenda é uma interpretação documentada e pode registrar incerteza.",
+      },
+      {
+        id: "inferencias",
+        kind: "multi",
+        prompt: "Selecione duas afirmações sustentadas.",
+        options: [
+          {
+            id: "conjunto",
+            label: "A carta ajuda a investigar condições de deslocamento nesse conjunto.",
+            feedback:
+              "A relação de proveniência aproxima as fontes, mas não identifica automaticamente os retratados.",
+          },
+          {
+            id: "pessoas",
+            label: "A carta prova quem são todas as pessoas da foto.",
+            feedback: "Não há essa identificação no documento.",
+          },
+          {
+            id: "limite",
+            label: "É necessária outra fonte para ligar a foto a um evento específico.",
+            feedback: "A hipótese precisa de informação adicional.",
+          },
+          {
+            id: "falta",
+            label: "Sem autor conhecido, a foto não serve a nenhum estudo histórico.",
+            feedback: "A ausência de autoria limita algumas perguntas, mas não elimina o vestígio.",
+          },
+        ],
+        answer: ["conjunto", "limite"],
+        hint: "Qual relação entre as peças está documentada e qual foi presumida?",
+        explanation:
+          "Uma fonte com lacunas continua investigável quando essas lacunas são explicitadas.",
+      },
+    ],
+    decision: {
+      id: "decisao",
+      kind: "choice",
+      prompt: "Como montar a exposição?",
+      options: [
+        {
+          id: "contexto",
+          label:
+            "Exibir a foto com a ficha atribuída, a carta em separado e uma pergunta sobre os deslocamentos.",
+          feedback: "As peças entram em diálogo sem virar uma identidade artificial.",
+        },
+        {
+          id: "falsa",
+          label: "Usar a carta como fala de uma das pessoas da foto.",
+          feedback: "Isso inventa uma ligação biográfica.",
+        },
+        {
+          id: "descartar",
+          label: "Excluir a imagem porque não há certeza total.",
+          feedback:
+            "A investigação histórica costuma trabalhar com evidência incompleta e limites explícitos.",
+        },
+      ],
+      answer: "contexto",
+      hint: "A exposição pode explicar o caminho da interpretação.",
+      explanation:
+        "O critério é mostrar vestígios, hipóteses e incertezas, sem converter uma associação em fato.",
     },
-    cards: [
-      {
-        icon: "busca",
-        category: "Peça 1 · A foto",
-        hook: "Sem data, sem autor",
-        evidence:
-          "Fotografia em preto e branco, sem legenda, sem data e sem crédito de acervo. Pode ser qualquer seca, em qualquer década, de qualquer lugar do sertão.",
-      },
-      {
-        icon: "historia",
-        category: "Peça 2 · A legenda de acervo",
-        hook: "Museu, 1911",
-        evidence:
-          "A mesma imagem aparece no acervo digital de um museu cearense, catalogada como “retirantes na seca, 1911”. Autor identificado, datação segura: 115 anos antes do post.",
-      },
-      {
-        icon: "elo",
-        category: "Peça 3 · O boletim",
-        hook: "Órgão oficial, hoje",
-        evidence:
-          "Boletim hidrológico da fundação estadual, publicado nesta manhã: reservatórios da região em 62% da capacidade, situação de atenção com seca em queda, dados e assinatura técnica.",
-      },
-    ],
-    crossQuestion: "Qual peça permite datar e verificar o fato por conta própria?",
-    crossOptions: [
-      { icon: "busca", title: "A foto solta", subtitle: "Sem data nem autor" },
-      { icon: "historia", title: "A legenda de 1911", subtitle: "Acervo com autoria e datação" },
-      { icon: "elo", title: "O boletim de hoje", subtitle: "Dado oficial atual e assinado" },
-    ],
-    crossCorrect: 1,
-    crossHint:
-      "Para DATAR a foto, o que importa é a informação sobre a própria foto, e não sobre o clima de hoje.",
-    crossWrong: [
-      "A foto solta é justamente o problema: sem data e sem autor, ela não prova nem desmente nada sozinha.",
-      "O boletim de hoje mede o presente: ele ajuda o texto, mas não diz nada sobre quando a foto foi tirada.",
-    ],
-    decisionPrompt: "O que o mural publica?",
-    decisions: [
-      {
-        id: "publicar",
-        icon: "compartilhar",
-        title: "Publicar direto",
-        subtitle: "Foto de 1911 como se fosse de hoje",
-      },
-      {
-        id: "checar",
-        icon: "escudo",
-        title: "Segurar e checar",
-        subtitle: "Trocar a imagem e datar o texto",
-      },
-      {
-        id: "alerta",
-        icon: "alerta",
-        title: "Publicar com contexto",
-        subtitle: "Foto antiga declarada como histórica",
-      },
-    ],
-    expected: "checar",
-    verdict: {
-      title: "Mural protegido do falso presente",
-      text: "Segurar foi a decisão certa: uma foto de 1911 vestida de “acontecendo agora” é desinformação histórica. O post voltou para a bancada para trocar a imagem por uma atual: ou declarar a de 1911 como registro de arquivo, com data e autor no crédito.",
-      detail: {
-        label: "Ver o bastidor do historiador",
-        text: "Toda fonte responde três perguntas: QUEM produziu, QUANDO e PARA QUÊ. A foto solta responde zero das três. A legenda do acervo responde as três e revela que o post queria emprestar a dramaticidade de 1911 à seca de hoje. Dramatizar com fonte mal datada é a receita clássica do falso histórico.",
-      },
-    },
+    conclusion:
+      "A fotografia entrou na exposição com proveniência e limites, não como prova de uma narrativa pronta.",
+    reflection: "Que informação do verso ou do conjunto poderia estreitar a datação?",
+    transfer:
+      "Para uma fotografia familiar, registre origem, inscrição, data estimada e base dessa estimativa.",
   },
   {
-    id: "auxilio-cancelado",
-    mission: "O post do auxílio",
-    context: {
-      channel: "Grupo da escola · 12h40",
-      meta: "encaminhado 31 vezes em 20 minutos",
-      message:
-        "“URGENTE: auxílio-transporte dos alunos CANCELADO a partir de segunda. Encaminhe para todo mundo!”",
-      annotation: "O post traz um print de tela sem identificação.",
+    id: "fabrica-1930",
+    title: "A fábrica nas duas versões",
+    focus: "Confrontar intenção e condições de produção",
+    context:
+      "Uma mostra sobre o trabalho em uma cidade fictícia recebeu duas descrições de uma fábrica em 1930.",
+    mission:
+      "Explique por que fontes divergentes podem iluminar dimensões distintas do mesmo processo.",
+    evidence: [
+      {
+        id: "relatorio",
+        title: "Relatório empresarial de 1930",
+        text: "Redigido para investidores: registra aumento de produção e apresenta o alojamento como melhoria. Não informa acidentes nem jornadas.",
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+      {
+        id: "carta",
+        title: "Carta de trabalhadora de 1930",
+        text: "Escrita à irmã: descreve cansaço, saudade e dificuldades no alojamento. Não apresenta números de toda a fábrica.",
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+      {
+        id: "memoria",
+        title: "Entrevista de 1980",
+        text: "Um antigo funcionário lembra a fábrica como primeiro emprego remunerado. A entrevista foi feita cinquenta anos depois e seleciona lembranças.",
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+    ],
+    tasks: [
+      {
+        id: "critica",
+        kind: "multi",
+        prompt: "Quais duas comparações respeitam as fontes?",
+        options: [
+          {
+            id: "interesse",
+            label: "O público investidor ajuda a explicar o foco produtivo do relatório.",
+            feedback: "Finalidade e público condicionam seleção dos fatos.",
+          },
+          {
+            id: "oficial",
+            label: "O relatório empresarial é neutro porque usa números.",
+            feedback: "Números podem ser precisos e ainda omitir dimensões relevantes.",
+          },
+          {
+            id: "tempo",
+            label: "A entrevista posterior permite estudar também a memória da experiência.",
+            feedback:
+              "A distância temporal afeta lembranças e cria uma pergunta histórica própria.",
+          },
+          {
+            id: "unica",
+            label: "A carta representa necessariamente todos os trabalhadores.",
+            feedback: "Uma experiência pessoal não é uma amostra de toda a fábrica.",
+          },
+        ],
+        answer: ["interesse", "tempo"],
+        hint: "A crítica pergunta quem escreve, para quem, quando e com qual finalidade.",
+        explanation: "Fonte contemporânea e memória posterior respondem a perguntas diferentes.",
+      },
+      {
+        id: "hipotese",
+        kind: "choice",
+        prompt: "Que hipótese usa as três peças sem apagar conflito?",
+        options: [
+          {
+            id: "plural",
+            label:
+              "A expansão criou emprego e produção, enquanto algumas experiências registram desgaste; as fontes não medem sua extensão.",
+            feedback: "A hipótese integra dimensões e explicita uma lacuna.",
+          },
+          {
+            id: "feliz",
+            label: "Todos ficaram felizes porque surgiu emprego.",
+            feedback: "Um benefício não elimina relatos de sofrimento.",
+          },
+          {
+            id: "farsa",
+            label: "Nada do relatório pode ser usado por ser empresarial.",
+            feedback: "Seu interesse exige crítica, não descarte automático de todos os dados.",
+          },
+        ],
+        answer: "plural",
+        hint: "Não é preciso escolher uma fonte como verdade total.",
+        explanation:
+          "Corroborar pode confirmar fatos específicos e manter divergência de avaliação.",
+      },
+    ],
+    decision: {
+      id: "decisao",
+      kind: "choice",
+      prompt: "Qual painel final é metodologicamente adequado?",
+      options: [
+        {
+          id: "comparar",
+          label:
+            "Apresentar público e data de cada fonte, comparar emprego e desgaste e pedir registros adicionais sobre jornada.",
+          feedback:
+            "O painel transforma divergência em investigação e identifica a próxima pergunta.",
+        },
+        {
+          id: "somar",
+          label: "Tratar todas as frases como se descrevessem 100% da fábrica.",
+          feedback: "Os alcances e os momentos não são iguais.",
+        },
+        {
+          id: "votar",
+          label: "Fazer votação para escolher qual documento é verdadeiro.",
+          feedback: "Preferência do público não testa a sustentação de uma afirmação histórica.",
+        },
+      ],
+      answer: "comparar",
+      hint: "Procure o que cada documento permite afirmar e o que não permite.",
+      explanation:
+        "Um painel histórico pode sustentar uma interpretação parcial sem declarar um testemunho vencedor.",
     },
-    cards: [
-      {
-        icon: "busca",
-        category: "Peça 1 · O print",
-        hook: "Sem autor, sem número",
-        evidence:
-          "Print de uma suposta notícia: sem veículo, sem data, sem URL, sem número de portaria. Texto em caixa alta com três pontos de exclamação: o uniforme típico do pânico.",
-      },
-      {
-        icon: "documento",
-        category: "Peça 2 · A portaria",
-        hook: "Número, data e texto integral",
-        evidence:
-          "Portaria nº 47/2026 da secretaria, publicada no Diário Oficial de ontem: reajusta o valor do auxílio em 6% e mantém o pagamento. Número rastreável, texto integral disponível, assinatura identificada.",
-      },
-      {
-        icon: "conversa",
-        category: "Peça 3 · O áudio",
-        hook: "“Me disseram que…”",
-        evidence:
-          "Áudio de 40 segundos encaminhado no grupo: uma voz diz que “me disseram que ia cancelar”. Sem fonte, sem nome, sem responsável: cadeia de rumor clássica.",
-      },
-    ],
-    crossQuestion: "Qual peça tem lastro documental rastreável?",
-    crossOptions: [
-      { icon: "busca", title: "O print", subtitle: "Notícia sem veículo nem data" },
-      {
-        icon: "documento",
-        title: "A portaria nº 47",
-        subtitle: "Diário Oficial, número e assinatura",
-      },
-      { icon: "conversa", title: "O áudio", subtitle: "“Me disseram que…”" },
-    ],
-    crossCorrect: 1,
-    crossHint:
-      "Lastro é o que pode ser CONFERIDO por qualquer pessoa: número de documento, data de publicação e assinatura responsável.",
-    crossWrong: [
-      "O print não revela nem de onde veio: sem veículo e sem data, é um bilhete anônimo disfarçado de notícia.",
-      "O áudio é a definição de rumor em estado puro: “me disseram” não é fonte, é vizinho de fila.",
-    ],
-    decisionPrompt: "O pânico já começou nos grupos. O mural decide:",
-    decisions: [
-      {
-        id: "publicar",
-        icon: "compartilhar",
-        title: "Publicar o aviso de cancelamento",
-        subtitle: "Espalha o alarme falso",
-      },
-      {
-        id: "checar",
-        icon: "escudo",
-        title: "Segurar e checar",
-        subtitle: "Conferir a portaria e corrigir o grupo",
-      },
-      {
-        id: "alerta",
-        icon: "alerta",
-        title: "Publicar com alerta",
-        subtitle: "Avisar que “há rumores” sem confirmar nada",
-      },
-    ],
-    expected: "checar",
-    verdict: {
-      title: "Rumor cortado no talo",
-      text: "Você segurou o post, abriu a portaria nº 47 no Diário Oficial e corrigiu o grupo: o auxílio não só continua: foi reajustado em 6%. Um número rastreável vale mais que mil “me disseram”.",
-      detail: {
-        label: "Ver o bastidor do historiador",
-        text: "Documento oficial público é o padrão-ouro do lastro: qualquer um pode conferir, a qualquer momento, sem depender de intermediário. Quando um boato e uma portaria brigam, a portaria ganha; e o trabalho da fonte é justamente encontrar essa briga antes de publicar.",
-      },
-    },
+    conclusion: "As versões mostraram produção, experiência e memória como dimensões relacionadas.",
+    reflection: "Que registro de salários ou jornada poderia mudar a hipótese?",
+    transfer:
+      "Ao comparar relatos, construa uma tabela com autoria, público, momento, afirmação e silêncio.",
   },
   {
-    id: "usina-xingu",
-    mission: "O post da usina",
-    context: {
-      channel: "Mural da escola · meio ambiente",
-      meta: "peça de debate sobre energia",
-      message: "“A usina do Xingu não afetou ninguém: veja o vídeo oficial da empresa.”",
-      annotation: "O vídeo tem produção impecável, com drones, trilha e narração calma.",
+    id: "memoria-usina",
+    title: "Memória de um território transformado",
+    focus: "Fontes, escala e silenciamentos",
+    context:
+      "A comunidade fictícia de Seringal produz um memorial sobre uma barragem construída décadas atrás.",
+    mission: "Faça uma síntese que não confunda área no mapa com experiência de todas as famílias.",
+    evidence: [
+      {
+        id: "mapa",
+        title: "Mapa técnico da obra",
+        text: "O mapa de planejamento marca 80 moradias dentro da área prevista de inundação. Trata de previsão, não de execução final.",
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+      {
+        id: "depoimento",
+        title: "Depoimento de 2010",
+        text: "Uma moradora relata mudança de casa e perda de acesso a um lugar de pesca. Sua entrevista foi autorizada para o memorial.",
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+      {
+        id: "registro",
+        title: "Registro de compensações",
+        text: "A empresa lista 65 acordos assinados. Não explica o destino das 15 moradias restantes nem pessoas que usavam o rio sem morar na área marcada.",
+        source: "Dossiê didático fictício, criado para o Ludus",
+      },
+    ],
+    tasks: [
+      {
+        id: "divergencia",
+        kind: "choice",
+        prompt:
+          "A diferença entre 80 moradias e 65 acordos prova que 15 famílias não receberam nada?",
+        options: [
+          {
+            id: "sim",
+            label: "Sim, a subtração já comprova a violação.",
+            feedback:
+              "Moradia e acordo são unidades distintas; plano e execução também podem ter mudado.",
+          },
+          {
+            id: "nao",
+            label:
+              "Não. A diferença indica uma lacuna a investigar sobre unidades, execução e cobertura.",
+            feedback:
+              "A comparação produz uma pergunta, sem resolver sozinha a trajetória de cada família.",
+          },
+          {
+            id: "zero",
+            label: "Não há lacuna porque todo documento empresarial está completo.",
+            feedback: "A lista não explica ausências nem outros usuários do território.",
+          },
+        ],
+        answer: "nao",
+        hint: "Compare unidade contada, data e critério de inclusão.",
+        explanation: "Um dado quantitativo pode revelar lacuna sem identificar sua causa.",
+      },
+      {
+        id: "investigar",
+        kind: "order",
+        prompt: "Organize a continuação da investigação.",
+        options: [
+          {
+            id: "unidades",
+            label: "Conferir unidades, datas e área efetivamente atingida.",
+            feedback: "Evita comparar previsão e resultado como equivalentes.",
+          },
+          {
+            id: "vozes",
+            label: "Buscar outros relatos e registros, incluindo usuários do rio fora da área.",
+            feedback: "O espaço vivido pode ultrapassar o limite do mapa.",
+          },
+          {
+            id: "sintese",
+            label: "Reescrever a síntese com convergências, conflitos e lacunas.",
+            feedback: "A nova conclusão precisa registrar o que mudou.",
+          },
+        ],
+        answer: ["unidades", "vozes", "sintese"],
+        hint: "Antes de concluir sobre quem ficou de fora, descubra de que fora se trata.",
+        explanation:
+          "Escala espacial e critérios de arquivo influenciam quais impactos ficam visíveis.",
+      },
+    ],
+    decision: {
+      id: "decisao",
+      kind: "choice",
+      prompt: "Qual frase deve abrir o memorial?",
+      options: [
+        {
+          id: "parcial",
+          label:
+            "As fontes documentam transformações e experiências de deslocamento, mas não descrevem todos os atingidos; a investigação segue.",
+          feedback: "A síntese assume evidência existente e limite de cobertura.",
+        },
+        {
+          id: "nada",
+          label: "Só moradores com acordo assinado foram afetados.",
+          feedback: "Assinatura não define todo o alcance de um impacto territorial.",
+        },
+        {
+          id: "todos",
+          label: "Todas as 80 famílias tiveram a mesma experiência da entrevistada.",
+          feedback: "Um depoimento não representa experiências idênticas de todos.",
+        },
+      ],
+      answer: "parcial",
+      hint: "O memorial não precisa encerrar perguntas que as fontes deixaram abertas.",
+      explanation:
+        "Uma narrativa responsável preserva a voz individual sem usá-la como experiência universal.",
     },
-    cards: [
-      {
-        icon: "fabrica",
-        category: "Peça 1 · O vídeo da empresa",
-        hook: "Interesse na própria causa",
-        evidence:
-          "Vídeo institucional produzido pela construtora: imagens aéreas, famílias sorrindo em casas novas e zero dados sobre territórios alagados. Quem financia a câmera escolhe o enquadramento.",
-      },
-      {
-        icon: "usuarios",
-        category: "Peça 2 · O depoimento",
-        hook: "Voz de quem mora lá",
-        evidence:
-          "Depoimento gravado no local, com localidade e data explícitas: uma liderança ribeirinha relata a cheia que sumiu com a pesca do vilarejo e lista famílias realocadas. Fonte primária com rosto, lugar e data.",
-      },
-      {
-        icon: "mapa",
-        category: "Peça 3 · O relatório",
-        hook: "Mapa com áreas afetadas",
-        evidence:
-          "Relatório do órgão ambiental com mapa do complexo: trechos de rio interligados e áreas de reserva com impacto estimado. Dado técnico de quem não vende energia nem assina o abaixo-assinado.",
-      },
-    ],
-    crossQuestion: "Qual peça traz o outro lado que o vídeo oficial omite?",
-    crossOptions: [
-      {
-        icon: "fabrica",
-        title: "O vídeo da empresa",
-        subtitle: "Produção própria, interesse próprio",
-      },
-      {
-        icon: "usuarios",
-        title: "O depoimento ribeirinho",
-        subtitle: "Fonte primária com local e data",
-      },
-      { icon: "mapa", title: "O relatório com mapa", subtitle: "Dado técnico independente" },
-    ],
-    crossCorrect: 1,
-    crossHint: "“Outro lado” é a voz diretamente atingida: quem mora onde a água mudou de lugar.",
-    crossWrong: [
-      "O vídeo da empresa é exatamente o lado ÚNICO que já está no post: falta quem vive o outro lado da barragem.",
-      "O relatório técnico é peça valiosa, mas voz afetada é diferente de laudo: o depoimento é quem sente o impacto na pele.",
-    ],
-    decisionPrompt: "O mural quer uma peça honesta sobre a usina. Você decide:",
-    decisions: [
-      {
-        id: "publicar",
-        icon: "compartilhar",
-        title: "Publicar só o vídeo oficial",
-        subtitle: "Um lado, produção caprichada",
-      },
-      {
-        id: "checar",
-        icon: "escudo",
-        title: "Segurar e esperar mais fontes",
-        subtitle: "Nada sobe sem o outro lado",
-      },
-      {
-        id: "alerta",
-        icon: "alerta",
-        title: "Publicar com os dois lados",
-        subtitle: "Vídeo + depoimento + relatório no mesmo post",
-      },
-    ],
-    expected: "alerta",
-    verdict: {
-      title: "Os dois lados no mesmo mural",
-      text: "Publicar vídeo + depoimento + relatório transformou propaganda em debate honesto: a escola viu a versão da empresa E a voz de quem vive o rio. Um lado só é cartão de visita; dois lados é jornalismo.",
-      detail: {
-        label: "Ver o bastidor do historiador",
-        text: "Toda fonte tem intenção: a empresa quer vender, o ribeirinho quer ser ouvido, o órgão quer regular. O método histórico não pergunta “quem está certo?”, pergunta “quem fala, de onde e por quê?”. Quando as versões não fecham, o mural ganha debate em vez de cartão de visita.",
-      },
-    },
+    conclusion:
+      "O memorial distinguiu previsão técnica, registro empresarial e experiência vivida.",
+    reflection:
+      "Quem pode ficar invisível quando o arquivo registra somente proprietários ou assinantes?",
+    transfer:
+      "Em histórias locais, procure documentos e testemunhos que usem unidades e critérios distintos.",
   },
 ];

@@ -8,8 +8,8 @@
  */
 
 import { Volume2, Square } from "lucide-react";
-import { isSpeaking, speak, stopSpeech } from "@/lib/speech";
-import { useState } from "react";
+import { speak } from "@/lib/speech";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export function SpeakerButton({
@@ -28,17 +28,25 @@ export function SpeakerButton({
   className?: string;
 }) {
   const [active, setActive] = useState(false);
+  const cancelReading = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    return () => {
+      cancelReading.current?.();
+      cancelReading.current = null;
+    };
+  }, [text]);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    if (active || isSpeaking()) {
-      stopSpeech();
+    if (active) {
+      cancelReading.current?.();
       setActive(false);
       return;
     }
     const el = highlight?.current ?? (highlightId ? document.getElementById(highlightId) : null);
     setActive(true);
-    speak(text, {
+    cancelReading.current = speak(text, {
       highlight: el,
       onEnd: () => setActive(false),
     });
@@ -49,7 +57,8 @@ export function SpeakerButton({
       type="button"
       onClick={handleClick}
       className={cn("shrink-0", className)}
-      aria-label={`${label} este texto em voz alta`}
+      aria-label={active ? "Parar leitura em voz alta" : `${label} este texto em voz alta`}
+      aria-pressed={active}
     >
       {active ? (
         <Square className="size-4" strokeWidth={2.6} aria-hidden />

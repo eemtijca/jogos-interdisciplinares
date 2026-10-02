@@ -20,6 +20,8 @@ export interface GameProgress {
   lastCompletedAt: string | null;
   /** Caso/variante da última conclusão (para "continuar de onde parou"). */
   lastCaseId?: string;
+  /** Casos registrados nesta edição; entradas anteriores permanecem válidas. */
+  completedCaseIds?: string[];
 }
 
 export type ProgressMap = Record<string, GameProgress>;
@@ -61,16 +63,29 @@ function readStorage(): ProgressMap {
       if (!entry) continue;
       safe[game.id] = {
         badges: Array.isArray(entry.badges)
-          ? entry.badges.filter(
-              (b): b is BadgeId => b === "lente" || b === "chave" || b === "selo-final",
-            )
+          ? [
+              ...new Set(
+                entry.badges.filter(
+                  (b): b is BadgeId => b === "lente" || b === "chave" || b === "selo-final",
+                ),
+              ),
+            ]
           : [],
         completions:
-          typeof entry.completions === "number" && entry.completions > 0
+          typeof entry.completions === "number" &&
+          Number.isFinite(entry.completions) &&
+          entry.completions > 0
             ? Math.floor(entry.completions)
             : 0,
         lastCompletedAt: typeof entry.lastCompletedAt === "string" ? entry.lastCompletedAt : null,
         lastCaseId: typeof entry.lastCaseId === "string" ? entry.lastCaseId : undefined,
+        completedCaseIds: Array.isArray(entry.completedCaseIds)
+          ? [
+              ...new Set(
+                entry.completedCaseIds.filter((id): id is string => typeof id === "string"),
+              ),
+            ]
+          : [],
       };
     }
     return safe;
@@ -117,6 +132,9 @@ export const useProgress = create<ProgressState>((set, get) => ({
         completions: current.completions + 1,
         lastCompletedAt: new Date().toISOString(),
         lastCaseId: caseId ?? current.lastCaseId,
+        completedCaseIds: [
+          ...new Set([...(current.completedCaseIds ?? []), ...(caseId ? [caseId] : [])]),
+        ],
       },
     };
     set({ progress: next });

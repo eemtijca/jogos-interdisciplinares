@@ -23,6 +23,16 @@ import { Medal, ScanSearch, KeyRound, Trophy, Trash2, Sparkles, ArrowRight } fro
 import Link from "next/link";
 import { hrefFor } from "@/lib/router";
 import { formatDate } from "@/lib/format";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 export function ProgressDashboard() {
   const progress = useProgress((s) => s.progress);
@@ -35,17 +45,10 @@ export function ProgressDashboard() {
 
   const recommendations = AREA_ORDER.map((areaId) => ({
     area: AREAS[areaId],
-    game: GAMES.find((g) => g.area === areaId && !isGameCompleted(progress[g.id])),
+    game: GAMES.find(
+      (g) => g.area === areaId && (progress[g.id]?.completedCaseIds?.length ?? 0) < 3,
+    ),
   })).filter((r) => r.game);
-
-  const handleReset = () => {
-    if (!confirmingReset) {
-      setConfirmingReset(true);
-      return;
-    }
-    resetAll();
-    setConfirmingReset(false);
-  };
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
@@ -58,17 +61,58 @@ export function ProgressDashboard() {
         </div>
         <button
           type="button"
-          onClick={handleReset}
-          className={`ludus-btn ludus-btn-sm ${confirmingReset ? "ludus-btn-danger" : "ludus-btn-paper"}`}
-          aria-live="polite"
+          onClick={() => setConfirmingReset(true)}
+          className="ludus-btn ludus-btn-sm ludus-btn-paper"
         >
           <Trash2 className="size-4" aria-hidden />
-          {confirmingReset ? "Toque de novo para confirmar" : "Zerar progresso"}
+          Zerar progresso
         </button>
       </header>
+      <AlertDialog open={confirmingReset} onOpenChange={setConfirmingReset}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zerar o progresso deste dispositivo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação apaga selos e registros locais. Repetir uma partida preserva o progresso e
+              dispensa a exclusão.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Manter progresso</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                resetAll();
+                setConfirmingReset(false);
+              }}
+            >
+              Confirmar exclusão
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <p className="mt-4 rounded-xl bg-cloud p-4 text-sm text-ink-soft">
+        Os selos registram participação, com ou sem apoio. O progresso não atribui nota nem
+        certifica domínio de habilidades. Registros de partidas anteriores são preservados; os novos
+        casos passam a ser contados quando revisitados.
+      </p>
 
       {/* Visão geral */}
-      <section className="mt-6 grid gap-4 sm:grid-cols-3" aria-label="Resumo geral">
+      <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Resumo geral">
+        <BigStat
+          icon={<ScanSearch className="size-6" aria-hidden />}
+          label="Casos registrados"
+          value={`${GAMES.reduce((total, game) => total + Math.min(3, progress[game.id]?.completedCaseIds?.length ?? 0), 0)}/${GAMES.length * 3}`}
+          pct={
+            (GAMES.reduce(
+              (total, game) =>
+                total + Math.min(3, progress[game.id]?.completedCaseIds?.length ?? 0),
+              0,
+            ) /
+              (GAMES.length * 3)) *
+            100
+          }
+          color="var(--matematica)"
+        />
         <BigStat
           icon={<Trophy className="size-6" strokeWidth={2.2} aria-hidden />}
           label="Jogos concluídos"
@@ -85,7 +129,7 @@ export function ProgressDashboard() {
         />
         <BigStat
           icon={<Sparkles className="size-6" strokeWidth={2.2} aria-hidden />}
-          label="Áreas exploradas"
+          label="Áreas concluídas"
           value={`${
             AREA_ORDER.filter((a) =>
               GAMES.filter((g) => g.area === a).every((g) => isGameCompleted(progress[g.id])),
@@ -171,16 +215,16 @@ export function ProgressDashboard() {
                 </span>
               </div>
 
-              <ul className="mt-4 grid gap-2 sm:grid-cols-3">
+              <ul className="mt-4 grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
                 {games.map((game) => {
                   const p = progress[game.id];
                   const gameDone = isGameCompleted(p);
                   const count = p?.completions ?? 0;
                   return (
-                    <li key={game.id}>
+                    <li key={game.id} className="min-w-0">
                       <Link
                         href={hrefFor({ view: "game", gameId: game.id })}
-                        className="flex items-center gap-3 rounded-2xl border-2 border-border bg-cloud/40 p-3 transition-colors hover:border-ink-faint"
+                        className="flex min-w-0 items-center gap-3 rounded-2xl border-2 border-border bg-cloud/40 p-3 transition-colors hover:border-ink-faint"
                       >
                         <span
                           className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${
@@ -204,6 +248,7 @@ export function ProgressDashboard() {
                                   p?.lastCompletedAt ? ` · ${formatDate(p.lastCompletedAt)}` : ""
                                 }`
                               : "A explorar"}
+                            {` (${Math.min(3, p?.completedCaseIds?.length ?? 0)}/3 casos)`}
                           </span>
                         </span>
                         <span className="flex items-center gap-0.5" aria-hidden>

@@ -15,6 +15,7 @@
  * narração, alternando entre "Ouvir" e "Parar".
  */
 
+import { useEffect, useRef } from "react";
 import { ArrowLeft, Contrast, Type, Volume2, Wind, RotateCcw, Compass } from "lucide-react";
 import { AREAS, LEVEL_LABEL, type GameMeta } from "@/lib/catalog";
 import { AREA_BG, AREA_BG_DARK, AREA_BG_SOFT, AREA_BTN, AREA_CHIP } from "@/lib/area-styles";
@@ -56,6 +57,15 @@ export function GameShell({
 }: GameShellProps) {
   const area = AREAS[game.area];
   const a11y = useA11y();
+  const instructionRef = useRef<HTMLDivElement>(null);
+  const initialRender = useRef(true);
+  useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
+    instructionRef.current?.focus({ preventScroll: false });
+  }, [session.phase, session.generation, session.verdict]);
 
   const handleExit = () => {
     stopSpeech();
@@ -87,7 +97,7 @@ export function GameShell({
             <GameIcon name={game.icon} className="size-6 sm:size-7" strokeWidth={2.2} />
           </span>
           <div className="min-w-0">
-            <h1 className="truncate font-display text-xl font-bold leading-tight text-ink sm:text-2xl">
+            <h1 className="font-display text-xl font-bold leading-tight text-ink sm:text-2xl">
               {game.title}
             </h1>
             <p className="truncate text-xs font-semibold text-ink-soft sm:text-sm">
@@ -120,7 +130,7 @@ export function GameShell({
           <p className="font-display text-[0.7rem] font-bold uppercase tracking-[0.12em] text-ink-faint">
             Missão
           </p>
-          <p className="truncate font-display text-base font-bold text-ink sm:text-lg">{mission}</p>
+          <p className="font-display text-base font-bold text-ink sm:text-lg">{mission}</p>
         </div>
       </section>
 
@@ -140,7 +150,7 @@ export function GameShell({
       </section>
 
       {/* Palco */}
-      <main className="mt-4" aria-live="polite">
+      <div className="mt-4">
         {session.verdict ? (
           <VerdictCard
             verdict={session.verdict}
@@ -153,9 +163,11 @@ export function GameShell({
           />
         ) : (
           <div className="ludus-panel p-4 sm:p-6">
-            {/* Instrução da fase + único botão de voz da tela */}
+            {/* Instrução da fase e leitura da missão */}
             <div
               id="game-instruction"
+              ref={instructionRef}
+              tabIndex={-1}
               className={cn(
                 "instruction-box mb-4 flex flex-col gap-3 rounded-2xl border-2 border-transparent p-4 sm:flex-row sm:items-center",
                 AREA_BG_SOFT[game.area],
@@ -178,7 +190,7 @@ export function GameShell({
             {children}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Feedback */}
       <div className="mt-3">

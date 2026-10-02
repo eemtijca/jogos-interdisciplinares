@@ -12,7 +12,7 @@ import { countCompleted, useProgress } from "@/lib/progress";
 
 const PILLS = [
   { icon: TimerOff, label: "Sem cronômetro" },
-  { icon: Volume2, label: "Cada tela tem voz" },
+  { icon: Volume2, label: "Leitura em voz alta" },
   { icon: HeartHandshake, label: "Pode repetir à vontade" },
 ];
 
@@ -59,12 +59,25 @@ export function HubHero() {
           >
             Jogos de investigação,
             <br />
-            <span className="text-hint">no ritmo que for o seu.</span>
+            <span className="text-hint">no ritmo de cada estudante.</span>
           </h1>
           <p className="mt-4 max-w-md text-base font-semibold leading-relaxed text-white/95 sm:text-lg">
-            Casos curtos de sala de aula, resolvidos por toque, teclado ou voz, no tempo que você
-            precisar.
+            {GAMES.length} jogos e {GAMES.length * 3} casos para confrontar evidências, testar
+            hipóteses e justificar decisões. Controle por toque ou teclado, com leitura em voz alta
+            e apoio.
           </p>
+
+          <button
+            type="button"
+            className="ludus-btn ludus-btn-paper mt-5"
+            onClick={() => {
+              const heading = document.getElementById("browser-title");
+              heading?.focus({ preventScroll: true });
+              heading?.scrollIntoView({ block: "start", behavior: "auto" });
+            }}
+          >
+            Escolher um jogo
+          </button>
 
           <ul className="mt-6 flex flex-wrap gap-2">
             {PILLS.map(({ icon: Icon, label }) => (
@@ -90,7 +103,7 @@ export function HubHero() {
             </span>
             <div>
               <p className="font-display text-[0.68rem] font-bold uppercase tracking-[0.14em] text-ink-soft">
-                Sua coleção
+                Coleção investigada
               </p>
               <p className="font-display text-2xl font-extrabold leading-tight text-ink">
                 {completed}
