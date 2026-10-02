@@ -180,6 +180,9 @@ Mescle por merge commit, preservando os commits da branch e o contexto da revis�
 - Código e comentários em português, curtos e diretos.
 - `src/lib/catalog.ts` é a fonte única de verdade dos jogos; `src/games/registry.ts` mapeia o identificador ao componente. Nunca duplique metadados fora do catálogo.
 - Cada jogo tem `content.ts` com os casos e `index.tsx` com o palco, usando `useGameSession` e `GameShell`. As fases são Explorar, Testar e Decidir, e os selos são `lente`, `chave` e `selo-final`.
+- A coleção possui cinco jogos por área, níveis 1 a 5, e três casos por jogo. O contrato está em `src/games/_shared/investigation-types.ts`. O palco compartilhado oferece tarefas de seleção, seleção múltipla, ordenação e cálculo, além de laboratórios definidos por cada conteúdo.
+- O índice `src/games/cases.ts` deve refletir o catálogo e o registro. A progressão de casos deve mudar a operação cognitiva, não apenas os números. Incluir concepção alternativa, explicação, pista e situação de transferência. Conferir unidades, cálculos e limitações dos modelos.
+- Fontes curriculares devem ser oficiais, com referência no documento de pesquisa correspondente. Dados didáticos são fictícios e devem ser rotulados. Não apresentar os cinco níveis como escala oficial da BNCC ou de avaliações externas.
 - Componentes e utilitários usam kebab-case; classes próprias usam o prefixo `ludus-`; tokens de cor e tipografia ficam em `src/app/globals.css`.
 - O progresso usa o store Zustand com a chave `ludus:progress:v1` e nunca regride.
 
@@ -197,10 +200,12 @@ Acessibilidade é requisito do produto, não enfeite:
 - Todo áudio tem alternativa visual e todo controle funciona por teclado, com alvos de toque confortáveis.
 - Respeite as preferências de `a11y-provider.tsx` (alto contraste, texto amplo e movimento reduzido) e a leitura em voz de `src/lib/speech.ts`.
 - Novos jogos passam pelos mesmos componentes de moldura, feedback e veredito, herdando os recursos de acessibilidade.
+- A resolução com apoio permite avançar após o erro e explica a resposta de referência. Selos registram participação. A justificativa livre pode ser escrita, oral ou discutida; a aplicação não a avalia automaticamente nem a persiste.
 
 ## Testes e qualidade
 
 A suíte do Playwright cobre o hub, uma partida completa de fumaça, o progresso, o modo professor, a acessibilidade e a API de saúde.
+Também cobre as 20 rotas de jogos, os 60 casos, integridade dos conteúdos, progressão dos cinco níveis, preservação de registros anteriores, pistas e apoio, filtros combinados, falha de cópia de link, teclado e responsividade.
 
 ```bash
 npm run test:e2e:docker            # todos os projetos, na imagem oficial
