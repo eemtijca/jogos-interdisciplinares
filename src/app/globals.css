@@ -107,24 +107,24 @@
   --success-dark: #005c2e;
   --success-soft: #e6f4ec;
 
-  --danger: #ff4b4b;
-  --danger-dark: #d33a3a;
+  --danger: #c52c34;
+  --danger-dark: #9b2029;
   --danger-soft: #ffe9e9;
 
   --hint: #ffc800;
-  --hint-dark: #b98f00;
+  --hint-dark: #806000;
   --hint-soft: #fff6d6;
 
-  --linguagens: #a560e8;
-  --linguagens-dark: #8941d4;
+  --linguagens: #8640c4;
+  --linguagens-dark: #7230ad;
   --linguagens-soft: #f3e9fd;
-  --matematica: #1899d6;
+  --matematica: #116fa0;
   --matematica-dark: #116fa0;
   --matematica-soft: #e3f2fd;
-  --natureza: #0b9e6f;
+  --natureza: #077a55;
   --natureza-dark: #077a55;
   --natureza-soft: #e0f8ee;
-  --humanas: #e07400;
+  --humanas: #a85500;
   --humanas-dark: #a85500;
   --humanas-soft: #fff1da;
 
@@ -839,4 +839,109 @@ html.a11y-contrast svg text {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--ink-faint);
+}
+
+/* Controles de investigação: estados legíveis em todos os temas. */
+.ludus-input {
+  min-height: 3rem;
+  border: 2px solid var(--ink-faint);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.ludus-input::placeholder {
+  color: var(--ink-faint);
+}
+.ludus-case-button {
+  min-height: 5rem;
+  border: 2px solid var(--ink-faint);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  text-align: left;
+  background: var(--surface);
+  color: var(--ink);
+}
+.ludus-case-button:hover {
+  background: var(--cloud);
+}
+.ludus-case-active {
+  border-color: var(--success-dark);
+  background: var(--success-soft);
+  box-shadow: inset 0 0 0 1px var(--success-dark);
+}
+.ludus-choice:has(input:checked) {
+  border-color: var(--success-dark);
+  background: var(--success-soft);
+}
+.ludus-choice:focus-within {
+  outline: 3px solid var(--success-dark);
+  outline-offset: 3px;
+}
+.ludus-choice input {
+  border-color: var(--ink-faint);
+}
+.ludus-skip-link {
+  position: fixed;
+  top: -10rem;
+  left: 1rem;
+  z-index: 100;
+  border: 3px solid var(--success-dark);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+.ludus-skip-link:focus {
+  top: 0.5rem;
+}
+html {
+  scroll-padding-top: 7rem;
+}
+html.a11y-text-large .truncate {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+html.a11y-reduced-motion *,
+html.a11y-reduced-motion *::before,
+html.a11y-reduced-motion *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 400px) {
+  .ludus-task,
+  .ludus-evidence {
+    padding: 0.75rem;
+  }
+  .ludus-task legend {
+    font-size: 1rem;
+  }
+}
+@media print {
+  header.sticky,
+  .bottom-nav,
+  .ludus-skip-link,
+  button {
+    display: none !important;
+  }
+  article {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+  }
 }

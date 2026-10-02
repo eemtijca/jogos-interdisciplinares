@@ -11,7 +11,17 @@
  */
 
 import { useState } from "react";
-import { GAMES, AREAS, AREA_ORDER, LEVEL_LABEL, type GameMeta } from "@/lib/catalog";
+import Link from "next/link";
+import {
+  GAMES,
+  AREAS,
+  AREA_ORDER,
+  LEVEL_LABEL,
+  LEVEL_DESCRIPTION,
+  type GameMeta,
+  type AreaId,
+} from "@/lib/catalog";
+import { INVESTIGATION_CASES } from "@/games/cases";
 import { useProgress, isGameCompleted } from "@/lib/progress";
 import { GameIcon } from "@/components/game-shell/game-icon";
 import {
@@ -32,38 +42,42 @@ const LESSON_STEPS = [
   {
     icon: Timer,
     title: "Antes (5 min)",
-    text: "Projete o hub e deixe o estudante escolher a área. Recursos DUA ficam na barra superior: alto contraste e texto amplo para quem precisa.",
+    text: "Apresentar o percurso e permitir escolha de área e caso. Verificar preferências de contraste, tamanho do texto, voz e movimento, sem impor uma adaptação por diagnóstico.",
   },
   {
     icon: ClipboardList,
     title: "Durante (35 min)",
-    text: "Cada jogo pede de 8 a 12 minutos e tem 3 casos. O ideal é 1 caso por sessão para AEE: conclua, celebre o selo e pare: repetir vale mais que avançar.",
+    text: "Estimar o tempo conforme a ficha e ajustar a sessão ao estudante. Investigar um caso, testar hipóteses e discutir limites. A duração indicada não é prazo nem regra para o AEE.",
   },
   {
     icon: Volume2,
     title: "Voz e leitura",
-    text: "Todo texto tem botão “Ouvir”. Estudantes com dislexia ou baixa leitura podem ouvir a instrução e as evidências com o realce amarelo acompanhando.",
+    text: "Oferecer leitura em voz alta nas instruções, evidências e tarefas. Manter o texto disponível. A voz depende do navegador e das vozes pt-BR do dispositivo.",
   },
   {
     icon: Keyboard,
     title: "Teclado e ponteiro",
-    text: "Toda a jornada funciona por teclado (Tab/Enter) e alvos ≥48px. O erro nunca pune: pode tentar quantas vezes quiser.",
+    text: "Usar Tab para navegar, Enter ou Espaço para selecionar e setas nos controles de faixa. Retentar livremente ou examinar a resolução com apoio. Aceitar justificativa escrita, oral ou em dupla.",
   },
 ];
 
 export function TeacherPanel() {
   const progress = useProgress((s) => s.progress);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copyErrorId, setCopyErrorId] = useState<string | null>(null);
+  const [areaFilter, setAreaFilter] = useState<AreaId | "todas">("todas");
 
   const copyLink = async (game: GameMeta) => {
     const url = `${window.location.origin}/jogo/${game.id}`;
     try {
       await navigator.clipboard.writeText(url);
+      setCopiedId(game.id);
+      setCopyErrorId(null);
+      window.setTimeout(() => setCopiedId(null), 1600);
     } catch {
-      /* clipboard bloqueado: link segue visível no title */
+      setCopyErrorId(game.id);
+      setCopiedId(null);
     }
-    setCopiedId(game.id);
-    window.setTimeout(() => setCopiedId(null), 1600);
   };
 
   return (
@@ -108,16 +122,56 @@ export function TeacherPanel() {
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-linguagens-dark" aria-hidden />
           <p className="text-sm leading-relaxed text-ink-soft">
             <strong className="text-ink">Privacidade por desenho:</strong> todo o progresso fica no
-            próprio dispositivo (localStorage), sem conta, sem servidor e sem dado pessoal. Para
-            acompanhar um estudante específico, use o mesmo dispositivo da sessão: ou peça que ele
-            mostre a tela de Progresso.
+            próprio dispositivo (localStorage), sem conta e sem coleta de dados pessoais. O
+            acompanhamento pedagógico depende da tela de Progresso e da mediação no mesmo
+            dispositivo da sessão.
           </p>
         </div>
       </header>
+      <section className="ludus-panel mt-6 p-5" aria-label="Avaliação formativa">
+        <h2 className="font-display text-xl font-bold text-ink">
+          Observar o raciocínio, além dos selos
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+          Os selos indicam participação e podem ser obtidos com apoio. Observar se a justificativa
+          cita evidências, explicita pressupostos e reconhece um limite. Pedir revisão após o
+          feedback e comparar a decisão inicial com a final. A aplicação não avalia automaticamente
+          a produção livre.
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+          O AEE complementa a escolarização. A coleção apoia a mediação e não substitui o
+          planejamento individual, a avaliação pedagógica ou a participação na turma.
+        </p>
+        <a
+          className="mt-3 inline-block min-h-11 font-bold text-success-dark underline"
+          href="https://www.gov.br/mec/pt-br/cne/bncc_ensino_medio.pdf"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Consultar a BNCC oficial do ensino médio
+        </a>
+      </section>
+      <label htmlFor="teacher-area" className="mt-6 block font-display font-bold text-ink">
+        Área das fichas pedagógicas
+      </label>
+      <select
+        id="teacher-area"
+        value={areaFilter}
+        onChange={(event) => setAreaFilter(event.target.value as AreaId | "todas")}
+        className="ludus-input mt-2 w-full sm:max-w-md"
+      >
+        <option value="todas">Todas as áreas</option>
+        {AREA_ORDER.map((areaId) => (
+          <option key={areaId} value={areaId}>
+            {AREAS[areaId].shortName}
+          </option>
+        ))}
+      </select>
 
       {/* Fichas por área */}
       <div className="mt-8 flex flex-col gap-8">
         {AREA_ORDER.map((areaId) => {
+          if (areaFilter !== "todas" && areaFilter !== areaId) return null;
           const area = AREAS[areaId];
           const games = GAMES.filter((g) => g.area === areaId);
           return (
@@ -125,7 +179,7 @@ export function TeacherPanel() {
               <div className="flex items-center gap-3">
                 <span
                   className="ludus-tile flex size-11 shrink-0 items-center justify-center rounded-2xl text-white"
-                  style={{ background: area.color }}
+                  style={{ background: `var(--${areaId})` }}
                   aria-hidden
                 >
                   <GameIcon name={area.icon} className="size-6" strokeWidth={2.2} />
@@ -147,11 +201,31 @@ export function TeacherPanel() {
                         <h3 className="font-display text-lg font-bold text-ink">{game.title}</h3>
                         <span
                           className="ludus-chip"
-                          style={{ color: area.colorDark, background: area.colorSoft }}
+                          style={{
+                            color: `var(--${areaId}-dark)`,
+                            background: `var(--${areaId}-soft)`,
+                          }}
                         >
                           Nível {game.level}
                         </span>
                       </div>
+                      <p className="text-sm leading-relaxed text-ink-soft">
+                        <strong>Exigência cognitiva: </strong>
+                        {LEVEL_DESCRIPTION[game.level]}
+                      </p>
+                      <ol
+                        className="space-y-2 text-sm text-ink-soft"
+                        aria-label={`Casos de ${game.title}`}
+                      >
+                        {INVESTIGATION_CASES[game.id].map((caso, index) => (
+                          <li key={caso.id}>
+                            <strong>
+                              {index + 1}. {caso.title}:{" "}
+                            </strong>
+                            {caso.focus}
+                          </li>
+                        ))}
+                      </ol>
 
                       <div className="flex items-start gap-2 text-sm leading-relaxed text-ink-soft">
                         <Target className="mt-0.5 size-4 shrink-0" aria-hidden />
@@ -173,10 +247,16 @@ export function TeacherPanel() {
                           {game.bncc.join(" · ")}
                         </span>
                         <span className="text-xs font-bold text-ink-soft">
-                          ~{game.minutes} min ·{" "}
+                          Cerca de {game.minutes} min por caso, sem limite.{" "}
                           {isGameCompleted(p) ? "concluído" : LEVEL_LABEL[game.level]}
                         </span>
                       </div>
+                      <Link
+                        className="ludus-btn ludus-btn-ink ludus-btn-sm"
+                        href={`/jogo/${game.id}`}
+                      >
+                        Abrir investigação
+                      </Link>
 
                       <button
                         type="button"
@@ -200,6 +280,24 @@ export function TeacherPanel() {
                           </>
                         )}
                       </button>
+                      <p role="status" className="text-sm text-ink-soft">
+                        {copiedId === game.id
+                          ? "Link copiado."
+                          : copyErrorId === game.id
+                            ? "Não foi possível copiar automaticamente. Selecione o endereço abaixo."
+                            : ""}
+                      </p>
+                      {copyErrorId === game.id && (
+                        <label className="text-xs font-bold text-ink">
+                          Endereço do jogo
+                          <input
+                            readOnly
+                            className="ludus-input mt-1 w-full"
+                            value={`${window.location.origin}/jogo/${game.id}`}
+                            onFocus={(event) => event.target.select()}
+                          />
+                        </label>
+                      )}
                     </article>
                   );
                 })}

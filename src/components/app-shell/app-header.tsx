@@ -48,7 +48,10 @@ export function AppHeader({ current }: { current: Route["view"] }) {
 
         {/* Navegação (a partir de sm; no mobile vive na barra inferior) */}
         <nav
-          className="ml-auto hidden items-center gap-1.5 sm:flex"
+          className={cn(
+            "ml-auto hidden items-center gap-1.5 sm:flex",
+            current === "game" && "sm:hidden",
+          )}
           aria-label="Navegação principal"
         >
           {NAV.map((item) => {

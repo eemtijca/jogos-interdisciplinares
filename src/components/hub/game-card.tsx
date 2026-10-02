@@ -52,6 +52,14 @@ export function GameCard({ game, progress }: { game: GameMeta; progress?: GamePr
       {/* Corpo */}
       <h3 className="mt-4 font-display text-xl font-bold leading-tight text-ink">{game.title}</h3>
       <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-soft">{game.tagline}</p>
+      <p className="mt-3 text-xs font-semibold text-ink-soft">
+        3 casos progressivos. Cerca de {game.minutes} min por caso, sem limite.
+      </p>
+      {progress?.completedCaseIds && (
+        <p className="mt-1 text-xs font-bold text-success-dark">
+          {Math.min(3, progress.completedCaseIds.length)} de 3 casos registrados
+        </p>
+      )}
 
       {/* Tags + BNCC */}
       <div className="mt-3 flex flex-wrap gap-1.5">

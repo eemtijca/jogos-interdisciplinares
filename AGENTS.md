@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Ludus: aplicação web de 12 jogos de investigação para o ensino médio, organizada pelas áreas da BNCC e pensada como recurso de apoio ao Atendimento Educacional Especializado (AEE), com os princípios do Desenho Universal para a Aprendizagem (DUA). Não há contas, banco de dados nem servidor de aplicação: todo o estado fica no `localStorage`. Next.js 16 com App Router e saída `standalone`, React 19, TypeScript, Tailwind CSS 4 e componentes shadcn/ui. Código, comentários, documentação, testes e commits são em português.
+Ludus: aplicação web de 20 jogos de investigação para o ensino médio, com cinco níveis por área da BNCC e três casos por jogo. Recurso de apoio ao Atendimento Educacional Especializado (AEE), com os princípios do Desenho Universal para a Aprendizagem (DUA). Não há contas, banco de dados nem servidor de aplicação: todo o estado fica no `localStorage`. Next.js 16 com App Router e saída `standalone`, React 19, TypeScript, Tailwind CSS 4 e componentes shadcn/ui. Código, comentários, documentação, testes e commits são em português.
 
 ## Diretrizes do repositório
 
@@ -15,7 +15,10 @@ Ludus: aplicação web de 12 jogos de investigação para o ensino médio, organ
 
 - `src/lib/catalog.ts` é a fonte única de verdade: área, nível, códigos BNCC, habilidades, ícone e duração de cada jogo. `src/games/registry.ts` mapeia o identificador ao componente.
 - Cada jogo tem `content.ts` (casos) e `index.tsx` (palco) e usa `useGameSession` e `GameShell`. As fases são fixas (Explorar, Testar e Decidir) e os selos são `lente`, `chave` e `selo-final`.
+- `investigation-types.ts` define o contrato dos casos e `investigation-game.tsx` compõe os palcos: dossiê, tarefas de hipótese, laboratório opcional e decisão. Cada pasta mantém conteúdo e ponto de entrada próprios. `src/games/cases.ts` reúne os casos para as fichas do professor e a verificação estrutural, sem duplicar metadados do catálogo.
+- Cada jogo deve ter exatamente três casos, com foco cognitivo progressivo. Fontes e dados fictícios devem ser identificados; códigos BNCC devem ser conferidos no documento oficial. Apoio não reduz selos, e selos não certificam domínio.
 - O progresso fica no store Zustand persistido em `ludus:progress:v1` e só acumula: selos nunca expiram.
+- `completedCaseIds` é opcional e acumulativo. Registros antigos conservam selos, contagem e último caso; não inventar casos concluídos para preencher a nova coleção.
 - As preferências de acessibilidade ficam em `a11y-provider.tsx` e viram classes no elemento `html` (`a11y-contrast`, `a11y-text-large` e `a11y-reduced-motion`).
 - Componentes e utilitários usam kebab-case; as classes próprias usam o prefixo `ludus-`; os tokens de cor e tipografia ficam em `src/app/globals.css`.
 - Voz, som e conversão de TeX ficam em `src/lib/speech.ts`, `src/lib/sound.ts` e `src/lib/tex.ts`; o MathJax é servido localmente de `public/mathjax`.
@@ -27,6 +30,7 @@ Pré-requisitos: Node 20 ou superior e, para a suíte em contêiner, Docker. Nã
 - `npm install`; `npm run dev` em `http://localhost:3000`; `npm run build`; `npm start`.
 - Verificação antes do pull request: `npm run lint`, `npm run tsc` e `npm run test:e2e:docker`.
 - A suíte em contêiner usa a imagem oficial e espera o aplicativo no ar; `npm run test:e2e` e `npm run test:e2e:install` são a alternativa local.
+- Os scripts Node em `scripts/` tornam dev, build, start e contêiner portáveis. No Windows, o Playwright usa `host.docker.internal`; no Linux, mantém o script Bash e a rede host.
 - O CI separa `qualidade.yml` (lint, tipos e build) e `testes.yml` (ponta a ponta no Chromium em contêiner).
 
 ## Ferramentas externas

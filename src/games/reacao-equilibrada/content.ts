@@ -1,129 +1,291 @@
-/**
- * Reação Equilibrada: conteúdo das reações.
- *
- * Cada reação traz contexto (onde a reação acontece), espécies com
- * contagem explícita de átomos, coeficientes corretos e dica de
- * estratégia de balanceamento.
- */
+import type { InvestigationCase } from "../_shared/investigation-types";
+import {
+  choiceTask,
+  evidence,
+  numberTask,
+  orderTask,
+  parameter,
+  round,
+} from "../_shared/math-science-authoring";
 
-export interface Species {
-  /** Fórmula com subscritos unicode (ex.: H₂O). */
-  formula: string;
-  /** Nome popular. */
-  name: string;
-  /** Átomos por unidade da espécie. */
-  atoms: Record<string, number>;
-}
-
-export interface Reaction {
-  id: string;
-  mission: string;
-  icon: string;
-  title: string;
-  context: string;
-  hint: string;
-  reagents: Species[];
-  products: Species[];
-  /** Coeficientes corretos na ordem [reagentes..., produtos...]. */
-  answer: number[];
-  verdict: {
-    title: string;
-    text: string;
-    detail: { label: string; text: string; speech?: string };
-  };
-}
-
-export const REACTIONS: Reaction[] = [
+export const CASES: InvestigationCase[] = [
   {
     id: "sintese-agua",
-    mission: "Bancada da síntese da água",
-    icon: "gota",
-    title: "Síntese da água",
+    title: "Conservar não elimina sobras",
+    focus: "Balanceamento e reagente limitante",
     context:
-      "Hidrogênio queima em oxigênio e vira água: a reação que move foguetes e que também explicou o fim do dirigível Hindenburg, sustentado por hidrogênio. A bancada pede a receita exata: quantos H₂ para cada O₂?",
-    hint: "Comece pelo hidrogênio: ele aparece em dois lugares. Iguale o H primeiro e o O se ajusta sozinho.",
-    reagents: [
-      { formula: "H₂", name: "hidrogênio", atoms: { H: 2 } },
-      { formula: "O₂", name: "oxigênio", atoms: { O: 2 } },
+      "Na bancada virtual, hidrogênio e oxigênio formam água. Você deve conservar átomos e verificar se todo reagente disponível pode reagir.",
+    mission: "Distinguir proporção estequiométrica e disponibilidade.",
+    evidence: [
+      evidence(
+        "formulas",
+        "Espécies",
+        "H₂ tem 2 H; O₂ tem 2 O; H₂O tem 2 H e 1 O. Balancear altera coeficientes, nunca os índices das fórmulas.",
+      ),
+      evidence(
+        "equacao",
+        "Proporção",
+        "\\(\\ce{2 H2 + O2 -> 2 H2O}\\). São 4 H e 2 O de cada lado; a mesma proporção vale em mol.",
+      ),
+      evidence(
+        "estoque",
+        "Estoque de referência",
+        "Há 4 mol de H₂ e 1 mol de O₂. Hipótese de reação completa até esgotar o limitante, sem perdas ou reações paralelas; experimento somente virtual.",
+      ),
     ],
-    products: [{ formula: "H₂O", name: "água", atoms: { H: 2, O: 1 } }],
-    answer: [2, 1, 2],
-    verdict: {
-      title: "Reação fechada em 2, 1 e 2",
-      text: "\\(\\ce{2H2 + O2 -> 2H2O}\\): quatro hidrogênios de cada lado, dois oxigênios de cada lado. A balança fecha e Lavoisier sorri. Nada foi criado, nada sumiu, tudo se rearranjou.",
-      detail: {
-        label: "Ver a contagem átomo a átomo",
-        text: "Esquerda: \\(2 \\times \\ce{H2} = 4\\) H e \\(1 \\times \\ce{O2} = 2\\) O. Direita: \\(2 \\times \\ce{H2O} = 4\\) H e \\(2\\) O. A conservação da massa é a régua invisível de toda equação química: mudam as ligações, nunca a contagem.",
-        speech:
-          "No lado esquerdo, duas moléculas de hidrogênio dão quatro hidrogênios e uma molécula de oxigênio dá dois oxigênios. No lado direito, duas moléculas de água trazem quatro hidrogênios e dois oxigênios. A conservação da massa é a régua invisível de toda equação química: mudam as ligações, nunca a contagem.",
+    model: {
+      title: "Teste a hipótese de que tudo reage",
+      expression: "Extensão = min(n(H₂)/2, n(O₂)); água = 2 × extensão",
+      note: "Quantidades em mol. A proporção está balanceada; disponibilidade limita produto. Não modela velocidade nem energia necessária. Tarefas usam 4 mol H₂ e 1 mol O₂.",
+      parameters: [
+        parameter("hidrogenio", "Hidrogênio inicial", 0, 6, 0.5, 4, "mol"),
+        parameter("oxigenio", "Oxigênio inicial", 0, 4, 0.5, 1, "mol"),
+      ],
+      evaluate: ({ hidrogenio, oxigenio }) => {
+        const extensao = Math.min(hidrogenio / 2, oxigenio);
+        return [
+          { label: "Água produzida", value: 2 * extensao, unit: "mol" },
+          { label: "Hidrogênio restante", value: hidrogenio - 2 * extensao, unit: "mol" },
+          { label: "Oxigênio restante", value: oxigenio - extensao, unit: "mol" },
+        ];
       },
     },
+    tasks: [
+      choiceTask(
+        "balancear",
+        "Qual equação conserva H e O sem mudar substâncias?",
+        [
+          ["certa", "2 H₂ + O₂ → 2 H₂O", "Há 4 H e 2 O de cada lado."],
+          [
+            "indice",
+            "H₂ + O₂ → H₂O₂",
+            "Alterar o índice cria outra substância: peróxido de hidrogênio.",
+          ],
+          ["desbalanceada", "H₂ + O₂ → H₂O", "Oxigênio passa de 2 para 1 átomo."],
+        ],
+        "certa",
+        "Conte cada elemento nos dois lados.",
+        "Coeficientes multiplicam toda a fórmula; índices definem a identidade da espécie.",
+      ),
+      numberTask(
+        "produto",
+        "Qual máximo de água em mol com 4 mol H₂ e 1 mol O₂?",
+        2,
+        "mol",
+        "1 mol de O₂ reage com 2 mol de H₂.",
+        "Oxigênio limita: 1 mol O₂ produz 2 mol H₂O. Sobram 2 mol H₂.",
+      ),
+    ],
+    decision: choiceTask(
+      "decisao",
+      "Qual relatório respeita conservação e estoque?",
+      [
+        [
+          "sobra",
+          "Produz até 2 mol H₂O e deixa 2 mol H₂; a equação balanceada não exige consumo de tudo.",
+          "A disponibilidade foi comparada à proporção.",
+        ],
+        ["quatro", "Produz 4 mol H₂O porque há 4 mol H₂.", "Seriam necessários 2 mol O₂."],
+        [
+          "criar",
+          "A conservação cria o oxigênio que falta.",
+          "Conservação impede criar átomos ausentes.",
+        ],
+      ],
+      "sobra",
+      "Separe a receita balanceada do estoque.",
+      "A equação descreve a proporção do que reage, não garante disponibilidade suficiente de cada reagente.",
+    ),
+    conclusion: "Balanceamento e reagente limitante respondem a perguntas diferentes.",
+    reflection: "Quanto oxigênio seria necessário para consumir os 4 mol H₂?",
+    transfer:
+      "Em outra reação, primeiro conserve átomos e depois compare estoques com os coeficientes.",
   },
   {
     id: "fogao-gas",
-    mission: "Bancada do fogão a gás natural",
-    icon: "frasco",
-    title: "Chama do gás natural",
+    title: "Oxigênio faz parte da conta",
+    focus: "Combustão completa e hipótese de produtos",
     context:
-      "A chama azul do fogão encanado é a combustão do metano (CH₄), componente principal do gás natural, com o oxigênio do ar, virando gás carbônico e vapor de água. A mesma reação esquenta o almoço e preocupa o clima. A receita precisa fechar.",
-    hint: "Acerte o carbono primeiro: um C no metano, um C no CO₂. Depois siga o hidrogênio e feche o oxigênio por último.",
-    reagents: [
-      { formula: "CH₄", name: "metano", atoms: { C: 1, H: 4 } },
-      { formula: "O₂", name: "oxigênio", atoms: { O: 2 } },
+      "Uma proposta de relatório prevê gases de uma combustão de metano sem conferir o oxigênio. Você deve revisar a previsão quantitativa e seus limites.",
+    mission: "Calcular limite teórico sem prever automaticamente combustão real.",
+    evidence: [
+      evidence(
+        "equacao",
+        "Modelo de combustão completa",
+        "CH₄ + 2 O₂ → CO₂ + 2 H₂O. São 1 C, 4 H e 4 O de cada lado.",
+      ),
+      evidence(
+        "estoque",
+        "Estoque virtual",
+        "3 mol CH₄ e 4 mol O₂. O simulador admite apenas a rota de combustão completa; eventual combustível restante não entra em outras reações.",
+      ),
+      evidence(
+        "limite",
+        "O que o modelo não descreve",
+        "Em combustão real com condições inadequadas podem surgir CO e outros produtos. Não se infere segurança, temperatura ou composição real somente da equação. Nenhuma chama deve ser produzida nesta atividade.",
+      ),
     ],
-    products: [
-      { formula: "CO₂", name: "gás carbônico", atoms: { C: 1, O: 2 } },
-      { formula: "H₂O", name: "água", atoms: { H: 2, O: 1 } },
-    ],
-    answer: [1, 2, 1, 2],
-    verdict: {
-      title: "Chama azul balanceada",
-      text: "\\(\\ce{CH4 + 2O2 -> CO2 + 2H2O}\\): o carbono fecha em 1 e 1, o hidrogênio em 4 e 4, o oxigênio em 4 e 4. Cada jantar cozinhado escreve esta equação no ar, e agora você sabe ler.",
-      detail: {
-        label: "Ver a contagem átomo a átomo",
-        text: "Esquerda: \\(1 \\times \\ce{CH4} = 1\\) C e \\(4\\) H; \\(2 \\times \\ce{O2} = 4\\) O. Direita: \\(1 \\times \\ce{CO2} = 1\\) C e \\(2\\) O; \\(2 \\times \\ce{H2O} = 4\\) H e \\(2\\) O. Fechamento: C 1 e 1, H 4 e 4, O 4 e 4. Estratégia clássica: C primeiro, H depois, O por último, porque ele é o mais espalhado.",
-        speech:
-          "No lado esquerdo, um metano dá um carbono e quatro hidrogênios, e dois oxigênios dão quatro oxigênios. No lado direito, um gás carbônico traz um carbono e dois oxigênios, e duas águas trazem quatro hidrogênios e dois oxigênios. Fechamento: carbono um para um, hidrogênio quatro para quatro, oxigênio quatro para quatro. Estratégia clássica: carbono primeiro, hidrogênio depois, oxigênio por último, porque ele é o mais espalhado.",
+    model: {
+      title: "Teste a necessidade de oxigênio",
+      expression: "CH₄ consumido = min(n(CH₄), n(O₂)/2)",
+      note: "Limite teórico da rota completa. O combustível não consumido é uma sobra do modelo, sem prever CO ou fuligem. Tarefas usam 3 mol CH₄ e 4 mol O₂.",
+      parameters: [
+        parameter("metano", "Metano inicial", 0, 5, 0.5, 3, "mol"),
+        parameter("oxigenio", "Oxigênio inicial", 0, 10, 0.5, 4, "mol"),
+      ],
+      evaluate: ({ metano, oxigenio }) => {
+        const consumido = Math.min(metano, oxigenio / 2);
+        return [
+          { label: "CO₂ pela rota completa", value: consumido, unit: "mol" },
+          { label: "Água pela rota completa", value: consumido * 2, unit: "mol" },
+          { label: "CH₄ não consumido no modelo", value: metano - consumido, unit: "mol" },
+        ];
       },
     },
+    tasks: [
+      numberTask(
+        "necessario",
+        "Quantos mol de O₂ seriam necessários para combustão completa dos 3 mol CH₄?",
+        6,
+        "mol",
+        "Cada mol de metano exige 2 mol de oxigênio.",
+        "3 × 2 = 6 mol O₂. Os 4 mol disponíveis não bastam para essa rota consumir todo o metano.",
+      ),
+      numberTask(
+        "dioxido",
+        "Com somente 4 mol O₂, qual máximo de CO₂ pela rota completa modelada?",
+        2,
+        "mol",
+        "Divida os 4 mol O₂ pelo coeficiente 2.",
+        "4/2 = 2 mol CH₄ consumidos, produzindo 2 mol CO₂ e 4 mol H₂O; 1 mol CH₄ sobra no modelo.",
+      ),
+    ],
+    decision: choiceTask(
+      "decisao",
+      "Qual parecer distingue cálculo e limite?",
+      [
+        [
+          "limite",
+          "A rota completa pode produzir até 2 mol CO₂; a composição de uma combustão real exige outros dados.",
+          "Quantidade e hipótese foram explicitadas.",
+        ],
+        [
+          "tres",
+          "Produz 3 mol CO₂, ignorando o oxigênio.",
+          "Conservação não garante reagente suficiente.",
+        ],
+        [
+          "segura",
+          "A equação balanceada prova que não há CO nem risco numa chama real.",
+          "Balanceamento não determina condições, rotas paralelas ou segurança.",
+        ],
+      ],
+      "limite",
+      "Identifique a rota admitida pelo simulador.",
+      "Uma previsão quantitativa só vale para suas hipóteses; combustão incompleta e exposição exigem avaliação própria.",
+    ),
+    conclusion:
+      "Disponibilidade e rota de reação limitam a previsão; conservação sozinha não determina os produtos reais.",
+    reflection: "Que informações faltam para estimar produtos de uma chama real?",
+    transfer:
+      "Ao comunicar rendimento teórico, declare reagente limitante e reações que ficaram fora do modelo.",
   },
   {
     id: "motor-etano",
-    mission: "Bancada do etano da petroquímica",
-    icon: "bequer",
-    title: "Combustão do etano",
+    title: "Massa que aparece como gás",
+    focus: "Proporção molar, massa e fronteira do sistema",
     context:
-      "O etano (C₂H₆) é o segundo componente do gás natural: sai das unidades de processamento e vira matéria-prima do eteno, base de plásticos como o polietileno. Sua combustão completa pede bastante oxigênio, e o maior coeficiente da coleção (7) mora nesta receita.",
-    hint: "Use o menor número inteiro possível: comece com 1 etano, veja o que sobra grande e escale tudo de uma vez.",
-    reagents: [
-      { formula: "C₂H₆", name: "etano", atoms: { C: 2, H: 6 } },
-      { formula: "O₂", name: "oxigênio", atoms: { O: 2 } },
+      "Uma equipe alega que a massa aumentou porque os produtos pesam mais que o etano inicial. Você deve incluir o oxigênio e separar mol de massa.",
+    mission: "Fechar o balanço e avaliar o rendimento medido.",
+    evidence: [
+      evidence(
+        "equacao",
+        "Equação balanceada",
+        "2 C₂H₆ + 7 O₂ → 4 CO₂ + 6 H₂O. Conserva 4 C, 12 H e 14 O. Massas molares adotadas: etano 30 g/mol; O₂ 32; CO₂ 44; água 18.",
+      ),
+      evidence(
+        "inicio",
+        "Carga do sistema",
+        "2 mol etano (60 g) e 7 mol oxigênio (224 g). Sistema fechado ideal; somente combustão completa.",
+      ),
+      evidence(
+        "coleta",
+        "Medição didática",
+        "Previsão: 4 mol CO₂ = 176 g. Coleta experimental fictícia: 158,4 g CO₂; rendimento de coleta inclui perdas ou reação incompleta ainda não distinguidas.",
+      ),
     ],
-    products: [
-      { formula: "CO₂", name: "gás carbônico", atoms: { C: 1, O: 2 } },
-      { formula: "H₂O", name: "água", atoms: { H: 2, O: 1 } },
-    ],
-    answer: [2, 7, 4, 6],
-    verdict: {
-      title: "Reação fechada em 2, 7, 4 e 6",
-      text: "\\(\\ce{2C2H6 + 7O2 -> 4CO2 + 6H2O}\\): carbono 4 e 4, hidrogênio 12 e 12, oxigênio 14 e 14. A proporção mínima pedida pela conservação: nem um átomo de sobra, nem um de falta.",
-      detail: {
-        label: "Ver a contagem átomo a átomo",
-        text: "Esquerda: \\(2 \\times \\ce{C2H6} = 4\\) C e \\(12\\) H; \\(7 \\times \\ce{O2} = 14\\) O. Direita: \\(4 \\times \\ce{CO2} = 4\\) C e \\(8\\) O; \\(6 \\times \\ce{H2O} = 12\\) H e \\(6\\) O. Fechamento: C 4 e 4, H 12 e 12, O 14 e 14. Quando um lado vem com 7, multiplicar tudo por 2 até virar inteiro é o truque dos químicos.",
-        speech:
-          "No lado esquerdo, dois etanos dão quatro carbonos e doze hidrogênios, e sete oxigênios dão catorze oxigênios. No lado direito, quatro gás carbônico trazem quatro carbonos e oito oxigênios, e seis águas trazem doze hidrogênios e seis oxigênios. Fechamento: carbono quatro para quatro, hidrogênio doze para doze, oxigênio catorze para catorze. Quando um coeficiente vem com sete, multiplicar tudo por dois até virar inteiro é o truque dos químicos.",
-      },
+    model: {
+      title: "Teste proporções e balanço de massa",
+      expression: "2 C₂H₆ + 7 O₂ → 4 CO₂ + 6 H₂O",
+      note: "Mistura estequiométrica escalada, reação completa no modelo. Mude a escala mantendo a proporção; eficiência refere-se somente à massa de CO₂ coletada, sem identificar a causa da perda.",
+      parameters: [
+        parameter("escala", "Fator da mistura", 0.5, 3, 0.5, 1, ""),
+        parameter("eficiencia", "Eficiência de coleta de CO₂", 50, 100, 5, 90, "%"),
+      ],
+      evaluate: ({ escala, eficiencia }) => [
+        { label: "Massa de reagentes", value: round(284 * escala), unit: "g" },
+        { label: "Massa teórica total de produtos", value: round(284 * escala), unit: "g" },
+        { label: "CO₂ coletado", value: round((176 * escala * eficiencia) / 100), unit: "g" },
+      ],
     },
+    tasks: [
+      numberTask(
+        "massa",
+        "Qual massa total dos reagentes na mistura de referência?",
+        284,
+        "g",
+        "Some etano e oxigênio, não apenas etano.",
+        "60 + 224 = 284 g. Produtos teóricos: 176 g CO₂ + 108 g água = 284 g; o número total de mol muda, mas a massa se conserva no modelo.",
+      ),
+      orderTask(
+        "processo",
+        "Ordene a análise do rendimento de CO₂.",
+        [
+          [
+            "comparar",
+            "Comparar 158,4 g coletados com a previsão",
+            "Última etapa: razão entre coletado e previsto.",
+          ],
+          [
+            "balancear",
+            "Conferir conservação dos átomos",
+            "A proporção vem da equação balanceada.",
+          ],
+          ["prever", "Converter 4 mol CO₂ em 176 g", "Use massa molar depois da proporção."],
+        ],
+        ["balancear", "prever", "comparar"],
+        "Comece pela equação e só depois converta e confronte a coleta.",
+        "O rendimento de coleta é 158,4/176 = 90%. Isso não explica sozinho se houve perda na coleta ou reação incompleta.",
+      ),
+    ],
+    decision: choiceTask(
+      "decisao",
+      "Qual relatório respeita o sistema e a medição?",
+      [
+        [
+          "completo",
+          "A previsão conserva 284 g; coleta de CO₂ é 90% da teórica, e a causa da diferença precisa investigação.",
+          "Inclui oxigênio, água e limite da medição.",
+        ],
+        [
+          "criada",
+          "A massa foi criada porque 176 g CO₂ superam 60 g etano.",
+          "Os 224 g de oxigênio também entram no sistema.",
+        ],
+        [
+          "mol",
+          "A conservação exige o mesmo número total de mol antes e depois.",
+          "Coeficientes somam 9 antes e 10 depois; conservam-se átomos, não o número de moléculas.",
+        ],
+      ],
+      "completo",
+      "Defina a fronteira e não confunda mol com massa.",
+      "Em sistema fechado, o balanço completo inclui todos os reagentes e produtos. Uma coleta parcial não mede a massa de todo o sistema.",
+    ),
+    conclusion:
+      "Massa molar conecta proporção em mol e massa; o balanço precisa incluir gases e todos os produtos.",
+    reflection: "Que ensaio distinguiria perda de coleta e reação incompleta?",
+    transfer:
+      "Em outro balanço, declare fronteira do sistema, espécies medidas e incertezas antes de atribuir uma causa.",
   },
 ];
-
-/** Todos os elementos presentes numa reação (ordem de aparição). */
-export function elementsOf(reaction: Reaction): string[] {
-  const order: string[] = [];
-  for (const sp of [...reaction.reagents, ...reaction.products]) {
-    for (const el of Object.keys(sp.atoms)) {
-      if (!order.includes(el)) order.push(el);
-    }
-  }
-  return order;
-}

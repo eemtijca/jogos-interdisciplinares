@@ -6,7 +6,7 @@
  * expressões em MathJax) e ações: jogar de novo, outro caso ou voltar.
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, RotateCcw, ArrowRight, Trophy } from "lucide-react";
 import { Confetti } from "./confetti";
 import { BadgeTray } from "./badge-tray";
@@ -38,6 +38,10 @@ export function VerdictCard({
 }) {
   const [detailOpen, setDetailOpen] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
   const fullText = [
     verdict.title,
     stripLatex(verdict.text),
@@ -74,6 +78,8 @@ export function VerdictCard({
           </p>
           <h2
             id="verdict-title"
+            ref={headingRef}
+            tabIndex={-1}
             className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl"
           >
             {verdict.title}

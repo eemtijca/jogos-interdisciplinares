@@ -22,6 +22,7 @@ const FALLBACK_VOICE = /^pt/i;
 let cachedVoices: SpeechSynthesisVoice[] = [];
 let listenersBound = false;
 let currentUtterance: SpeechSynthesisUtterance | null = null;
+let currentFinish: (() => void) | null = null;
 
 function speechApi(): SpeechSynthesis | null {
   if (typeof window === "undefined") return null;
@@ -83,8 +84,11 @@ function clearHighlight(): void {
 /** Interrompe qualquer leitura em andamento. */
 export function stopSpeech(): void {
   const api = speechApi();
-  if (!api) return;
+  const finish = currentFinish;
+  currentFinish = null;
   currentUtterance = null;
+  finish?.();
+  if (!api) return;
   try {
     api.cancel();
   } catch {
@@ -104,10 +108,13 @@ export function isSpeaking(): boolean {
   }
 }
 
-/** Lê um texto em voz alta, cancelando leituras anteriores. */
-export function speak(text: string, options: SpeakOptions = {}): void {
+/** Lê o texto e retorna um cancelamento que pertence somente a essa locução. */
+export function speak(text: string, options: SpeakOptions = {}): () => void {
   const api = speechApi();
-  if (!api || !text) return;
+  if (!api || !text) {
+    options.onEnd?.();
+    return () => {};
+  }
 
   stopSpeech();
 
@@ -121,9 +128,15 @@ export function speak(text: string, options: SpeakOptions = {}): void {
   if (voice) utterance.voice = voice;
 
   const el = options.highlight ?? null;
+  let ended = false;
   const finish = () => {
+    if (ended) return;
+    ended = true;
     if (el) el.classList.remove("reading-aloud");
-    if (currentUtterance === utterance) currentUtterance = null;
+    if (currentUtterance === utterance) {
+      currentUtterance = null;
+      currentFinish = null;
+    }
     options.onEnd?.();
   };
 
@@ -137,11 +150,15 @@ export function speak(text: string, options: SpeakOptions = {}): void {
   }
 
   currentUtterance = utterance;
+  currentFinish = finish;
   try {
     api.speak(utterance);
   } catch {
     finish();
   }
+  return () => {
+    if (currentUtterance === utterance) stopSpeech();
+  };
 }
 
 /** Lê uma lista de trechos em sequência (ex.: instrução e transcrição). */

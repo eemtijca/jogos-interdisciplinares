@@ -8,6 +8,13 @@
 
 import {
   AlertTriangle,
+  BatteryCharging,
+  BriefcaseBusiness,
+  ChartColumn,
+  GitCompareArrows,
+  Landmark,
+  Network,
+  Palette,
   Banknote,
   Beaker,
   BookOpen,
@@ -71,6 +78,14 @@ const ICONS: Record<string, LucideIcon> = {
   TrendingUp: TrendingUp,
   Wallet: Wallet,
   Zap: Zap,
+  BatteryCharging,
+  BriefcaseBusiness,
+  ChartColumn,
+  GitCompareArrows,
+  Landmark,
+  Network,
+  Palette,
+  Leaf,
 
   // evidências e peças
   alerta: AlertTriangle,

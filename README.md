@@ -2,7 +2,7 @@
 
 Aplicação web de jogos educacionais de investigação para o ensino médio, organizada por áreas do conhecimento da BNCC. O projeto é um recurso de apoio ao Atendimento Educacional Especializado (AEE) e segue os princípios do Desenho Universal para a Aprendizagem (DUA): atividades sem cronômetro, leitura em voz alta, repetição livre e ritmo próprio do estudante.
 
-A coleção reúne 12 jogos, três por área (Linguagens, Matemática, Ciências da Natureza e Ciências Humanas), e cada jogo oferece três casos. Não há contas, banco de dados ou servidor de aplicação: todo o estado permanece no navegador do dispositivo.
+A coleção reúne 20 jogos, cinco por área (Linguagens, Matemática, Ciências da Natureza e Ciências Humanas), e cada jogo oferece três casos. Não há contas, banco de dados ou servidor de aplicação: todo o estado permanece no navegador do dispositivo.
 
 ## Requisitos
 
@@ -24,7 +24,7 @@ npm run start
 
 O build usa a saída `standalone` do Next.js e copia os arquivos estáticos e a pasta `public` para `.next/standalone`. O script `start` executa o servidor standalone com Node.
 
-Não existem variáveis de ambiente obrigatórias nem banco de dados. Funciona em qualquer hospedagem Node.js, como Vercel, Railway ou um servidor local da escola.
+Os scripts Node em `scripts/` são portáveis entre Windows e Linux. Para testar em contêiner, iniciar Docker e manter o aplicativo no ar; no Windows, usar `host.docker.internal` como endereço do host no contêiner. No Linux, permanece a rede host do script Bash. Não existem variáveis de ambiente obrigatórias nem banco de dados. Funciona em qualquer hospedagem Node.js, como Vercel, Railway ou um servidor local da escola.
 
 ## Scripts
 
@@ -39,7 +39,7 @@ Não existem variáveis de ambiente obrigatórias nem banco de dados. Funciona e
 | `test:e2e:docker`  | imagem oficial do Playwright             | Alternativa principal, em contêiner       |
 | `test:e2e:install` | instala os navegadores no host           | Alternativa local                         |
 
-Observação: o `next.config.ts` ignora erros de tipo no build, por isso a checagem de tipos roda separadamente com `npm run tsc`. A suíte de fumaça cobre o hub, um jogo, o progresso, o modo professor, a acessibilidade e a API de saúde.
+Observação: o `next.config.ts` ignora erros de tipo no build, por isso a checagem de tipos roda separadamente com `npm run tsc`. A suíte cobre as 20 rotas, os 60 casos, integridade de conteúdo e modelos, jornadas completas por área, preservação do progresso, filtros, modo professor, teclado, preferências, responsividade e API de saúde. A execução principal usa a imagem oficial do Playwright.
 
 ## Stack
 
@@ -71,20 +71,22 @@ As páginas de jogo são pré-renderizadas em tempo de build a partir do catálo
 
 ### Catálogo e registro
 
-`src/lib/catalog.ts` é a fonte única de verdade da coleção: área, nível, códigos BNCC, habilidades, ícone e duração estimada de cada jogo. `src/games/registry.ts` mapeia o identificador do catálogo ao componente React correspondente.
+`src/lib/catalog.ts` é a fonte única de verdade da coleção: área, nível, códigos BNCC, habilidades, ícone e duração estimada de cada jogo. `src/games/registry.ts` mapeia o identificador do catálogo ao componente React correspondente, carregado por `next/dynamic`. As fichas do professor também têm carregamento separado. `src/games/cases.ts` reúne os conteúdos para fichas e testes, sem duplicar metadados.
 
 ### Sessão de jogo
 
-Cada jogo é composto por conteúdo (`content.ts`) e palco (`index.tsx`). A mecânica comum fica em dois lugares:
+Cada jogo é composto por conteúdo (`content.ts`) e palco (`index.tsx`). O contrato em `src/games/_shared/investigation-types.ts` organiza dossiês, tarefas, decisões e modelos de cada caso. O palco comum em `investigation-game.tsx` oferece seleção, seleção múltipla, ordenação, cálculo, pistas e resolução com apoio. Cada laboratório define parâmetros, unidades e resultados próprios, com tabela equivalente ao gráfico. A moldura e sessão ficam em dois lugares:
 
 - `src/games/_shared/use-game-session.ts`: fases, selos, feedback imediato, veredito, sons, voz e reinício.
 - `src/components/game-shell/game-shell.tsx`: moldura da partida, com cabeçalho, missão, indicador de fases, área do palco, banner de feedback e atalhos de acessibilidade.
 
-As fases são fixas para toda a coleção: Explorar, Testar e Decidir. Os selos são `lente`, `chave` e `selo-final`, concedidos ao avançar de fase e ao concluir a partida.
+As fases são fixas para toda a coleção: Explorar, Testar e Decidir. Os selos são `lente`, `chave` e `selo-final`, concedidos ao avançar de fase e ao concluir a partida. O erro permite retentativa ou avanço com resolução comentada. A justificativa livre pode ser escrita, oral ou discutida; não recebe nota automática e não é persistida. O dossiê continua consultável nas três fases, e o veredito inclui transferência.
+
+O laboratório permanece disponível ao decidir, com os parâmetros experimentados e restauração opcional dos valores iniciais. As respostas continuam vinculadas aos dados de cada enunciado. A tabela de comparação recebe foco por Tab e permite percorrer colunas com as setas. A leitura do modelo inclui seus valores e resultados atuais; alterar ou retirar um feedback encerra somente a leitura que pertence a ele. No hub, Escolher um jogo leva ao catálogo e foca seu título.
 
 ### Progresso
 
-`src/lib/progress.ts` mantém o progresso em um store Zustand persistido no `localStorage` sob a chave `ludus:progress:v1`. O registro inclui selos, número de partidas concluídas, data da última conclusão e o último caso jogado. Progresso apenas acumula: selos não expiram.
+`src/lib/progress.ts` mantém o progresso em um store Zustand persistido no `localStorage` sob a chave `ludus:progress:v1`. O registro inclui selos, número de partidas concluídas, data da última conclusão, último caso e a lista opcional `completedCaseIds`. Entradas anteriores permanecem válidas e preservam o histórico; casos desta edição são contados quando registrados. Progresso apenas acumula: selos não expiram. A exclusão manual exige confirmação com opção de cancelamento. Selos indicam participação, incluindo resolução com apoio, e não certificam domínio.
 
 ### Acessibilidade
 
@@ -118,20 +120,40 @@ src/
 
 ## Catálogo de jogos
 
-| Área       | Nível | Jogo                  | BNCC       | Foco                                              |
-| ---------- | ----- | --------------------- | ---------- | ------------------------------------------------- |
-| Linguagens | 1     | Fonte Suspeita        | EM13LP39   | Checagem de informação e credibilidade da fonte   |
-| Linguagens | 2     | Revisor Crítico       | EM13LP15   | Coesão, coerência e registro na revisão de texto  |
-| Linguagens | 3     | Tese e Antítese       | EM13LGG303 | Argumentação, objeção e síntese                   |
-| Matemática | 1     | Orçamento no Limite   | EM13MAT303 | Juros compostos e decisão de consumo              |
-| Matemática | 2     | Função Viva           | EM13MAT302 | Funções do 1º e 2º grau com gráfico interativo    |
-| Matemática | 3     | Risco Provável        | EM13MAT312 | Probabilidade teórica e frequência simulada       |
-| Natureza   | 1     | O Circuito Falhou     | EM13CNT107 | Circuitos série e paralelo e Lei de Ohm           |
-| Natureza   | 2     | Reação Equilibrada    | EM13CNT101 | Balanceamento de equações e conservação de átomos |
-| Natureza   | 3     | Dilema do Gene        | EM13CNT205 | Herança dominante e seleção natural               |
-| Humanas    | 1     | Fonte Histórica       | EM13CHS101 | Crítica de fontes históricas                      |
-| Humanas    | 2     | Território em Disputa | EM13CHS206 | Uso do solo e risco hidrológico                   |
-| Humanas    | 3     | Dilema Ético          | EM13CHS502 | Conflitos entre renda, saúde e legislação         |
+| Área       | Nível | Jogo                      | BNCC                                           | Foco                                                                                                                      |
+| ---------- | ----- | ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Linguagens | 1     | Fonte Suspeita            | EM13LP39                                       | Aplicar procedimentos de checagem em decisões editoriais sustentadas por evidência.                                       |
+| Linguagens | 2     | Revisor Crítico           | EM13LP15                                       | Editar textos claros e adequados sem inventar relações causais ou estigmatizar variedades linguísticas.                   |
+| Linguagens | 3     | Tese e Antítese           | EM13LGG303                                     | Formular e negociar posições diante de perspectivas distintas e restrições documentadas.                                  |
+| Linguagens | 4     | Discurso em Rede          | EM13LP14, EM13LP41, EM13LGG704                 | Avaliar como modos e seleção de conteúdo constroem sentidos e orientar uma reedição responsável.                          |
+| Linguagens | 5     | Autoria em Debate         | EM13LP46, EM13LP49, EM13LGG703                 | Justificar decisões de interpretação e produção coletiva com crédito, contexto e responsabilidade.                        |
+| Matemática | 1     | Orçamento no Limite       | EM13MAT303, EM13MAT304, EM13MAT203             | Decidir sobre cenários financeiros declarando orçamento, calendário de pagamentos e limites do modelo.                    |
+| Matemática | 2     | Função Viva               | EM13MAT302, EM13MAT401, EM13MAT503             | Construir e validar modelos afins e quadráticos considerando unidades, domínio e restrições.                              |
+| Matemática | 3     | Risco Provável            | EM13MAT312, EM13MAT311, EM13MAT511             | Avaliar mecanismos aleatórios e decisões de risco explicitando eventos, hipóteses e critérios.                            |
+| Matemática | 4     | Dados sob Lupa            | EM13MAT102, EM13MAT202, EM13MAT316             | Produzir conclusões estatísticas proporcionais ao desenho, à distribuição e às limitações dos dados.                      |
+| Matemática | 5     | Modelos em Disputa        | EM13MAT302, EM13MAT304, EM13MAT301, EM13MAT103 | Integrar modelos, restrições, unidades e cenários para formular uma recomendação com condições de revisão.                |
+| Natureza   | 1     | O Circuito Falhou         | EM13CNT107, EM13CNT101                         | Explicar funcionamento de circuitos por medições e modelos de transformação de energia com limites de segurança.          |
+| Natureza   | 2     | Reação Equilibrada        | EM13CNT101, EM13CNT301                         | Justificar previsões químicas por conservação, estoque e fronteira do sistema, reconhecendo limites da rota modelada.     |
+| Natureza   | 3     | Dilema do Gene            | EM13CNT205, EM13CNT301                         | Interpretar modelos de herança e seleção em nível populacional, explicitando probabilidade, incerteza e limites.          |
+| Natureza   | 4     | Ecossistema em Alerta     | EM13CNT105, EM13CNT203, EM13CNT206             | Avaliar intervenções ambientais integrando processos ecológicos, desenho de investigação e limites de generalização.      |
+| Natureza   | 5     | Energia em Transição      | EM13CNT106, EM13CNT107, EM13CNT101             | Formular recomendações tecnológicas condicionais com balanços de energia, cenários e avaliação participativa de impactos. |
+| Humanas    | 1     | Fonte Histórica           | EM13CHS101                                     | Comparar fontes históricas com crítica de contexto, sem tomar um documento como verdade total.                            |
+| Humanas    | 2     | Território em Disputa     | EM13CHS206, EM13CHS606                         | Propor uso do território e investimentos a partir de camadas físicas, sociais e orçamentárias.                            |
+| Humanas    | 3     | Dilema Ético              | EM13CHS501, EM13CHS502                         | Deliberar sobre conflitos de valores e condições de participação sem reduzir pessoas a um placar.                         |
+| Humanas    | 4     | Trabalho em Transformação | EM13CHS401, EM13CHS402, EM13CHS403             | Analisar relações e desigualdades do trabalho diante de mudanças técnicas e propor alternativas fundamentadas.            |
+| Humanas    | 5     | Pacto Democrático         | EM13CHS501, EM13CHS606                         | Deliberar sobre políticas e procedimentos coletivos com inclusão, transparência e possibilidade de revisão.               |
+
+Os códigos foram conferidos no documento oficial da BNCC. A descrição do foco é uma síntese didática, não a redação integral da habilidade. Os recortes e justificativas constam na pesquisa por área. A coleção não cobre todo o currículo.
+
+### Progressão da coleção
+
+1. Evidências: distinguir afirmação, observação e prova, explicitando limites.
+2. Relações: comparar representações e relacionar variáveis sob condições definidas.
+3. Modelagem: construir e confrontar modelos ou argumentos.
+4. Crítica: examinar pressupostos, vieses e incertezas.
+5. Síntese: integrar critérios e justificar decisão com condições de revisão.
+
+Todos os jogos e casos ficam disponíveis. O nível indica a exigência do percurso, sem equivalência automática com série ou proficiência. Os três casos internos acrescentam relações, restrições ou transferência, sem cronômetro ou punição. A duração do catálogo é uma estimativa por caso, sem prazo.
 
 ## Design system
 
@@ -159,8 +181,8 @@ O modo escuro baseado em classe (`.dark`) existe no CSS, mas a interface do prod
 ## Como adicionar um jogo
 
 1. Registre os metadados em `src/lib/catalog.ts` com área, nível, BNCC, ícone e habilidades.
-2. Crie `src/games/<id>/content.ts` com os três casos e `src/games/<id>/index.tsx` com o palco, usando `useGameSession` e `GameShell`.
-3. Adicione o componente ao mapa em `src/games/registry.ts`.
+2. Crie `src/games/<id>/content.ts` com três casos progressivos no contrato `InvestigationCase` e `index.tsx` com o palco compartilhado `InvestigationGame`, que utiliza `useGameSession` e `GameShell`.
+3. Adicione o componente ao mapa em `src/games/registry.ts` e o conteúdo ao índice `src/games/cases.ts`. Confira BNCC oficial, cálculos, feedback, pistas e condições de validade.
 4. O hub, o progresso, o modo professor e os recursos de acessibilidade passam a cobrir o novo jogo automaticamente.
 
 ## API
@@ -169,10 +191,19 @@ Existe um único endpoint de verificação de saúde em `GET /api`, que responde
 
 ## Limitações conhecidas
 
-- A suíte automatizada é de fumaça, sem testes de unidade.
+- A suíte automatizada combina fumaça de interface e verificações estruturais e numéricas. Não demonstra eficácia de aprendizagem nem certifica acessibilidade em toda tecnologia assistiva.
 - `next.config.ts` define `typescript.ignoreBuildErrors: true` e `reactStrictMode: false`. Por isso, a checagem de tipos deve ser executada separadamente com `npm run tsc`.
 - O estado é local ao navegador. Não há sincronização entre dispositivos.
 - A leitura em voz alta depende da disponibilidade de vozes pt-BR no sistema operacional e no navegador.
+
+## Pesquisa e evidências
+
+- [Relatório de evolução, decisões, validação e riscos](docs/relatorio-evolucao.md)
+- [Pesquisa de currículo, feedback e design inclusivo](docs/pesquisa-design-inclusivo.md)
+- [Diagnóstico e matriz de Linguagens e Humanas](docs/pesquisa-linguagens-humanas.md)
+- [Diagnóstico e matriz de Matemática e Natureza](docs/pesquisa-matematica-natureza.md)
+
+Os estudos fundamentam a proposta, sem substituir validação em sala. AEE complementa a escolarização, e a mediação deve considerar as necessidades de cada estudante. O estado local permanece no navegador; isso não implica instalação offline dos arquivos do aplicativo.
 
 ## Licença e créditos
 

@@ -63,6 +63,7 @@ export function useGameSession(gameId: string): GameSession {
   const [feedback, setFeedback] = useState<FeedbackMessage | null>(null);
   const [verdict, setVerdict] = useState<VerdictPayload | null>(null);
   const [generation, setGeneration] = useState(0);
+  const finishedRef = useRef(false);
 
   const { awardBadge, completeGame } = useProgress.getState();
   const soundRef = useRef(true);
@@ -83,6 +84,8 @@ export function useGameSession(gameId: string): GameSession {
 
   const setPhase = useCallback(
     (next: Phase) => {
+      stopSpeech();
+      setFeedback(null);
       setPhaseState(next);
       if (next >= 2) award("lente");
       if (next >= 3) award("chave");
@@ -127,6 +130,9 @@ export function useGameSession(gameId: string): GameSession {
 
   const finish = useCallback(
     (payload: VerdictPayload) => {
+      if (finishedRef.current) return;
+      finishedRef.current = true;
+      stopSpeech();
       award("selo-final");
       setVerdict(payload);
       if (soundRef.current) playVictory();
@@ -136,6 +142,7 @@ export function useGameSession(gameId: string): GameSession {
   );
 
   const restart = useCallback(() => {
+    finishedRef.current = false;
     stopSpeech();
     setPhaseState(1);
     setBadges([]);

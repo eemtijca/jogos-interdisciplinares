@@ -8,7 +8,16 @@
 
 import { useMemo, useState } from "react";
 import { Search, X, Filter } from "lucide-react";
-import { AREAS, AREA_ORDER, GAMES, type AreaId, type Level } from "@/lib/catalog";
+import {
+  AREAS,
+  AREA_ORDER,
+  GAMES,
+  LEVEL_LABEL,
+  LEVEL_ORDER,
+  LEVEL_DESCRIPTION,
+  type AreaId,
+  type Level,
+} from "@/lib/catalog";
 import { AREA_BG, AREA_BG_SOFT, AREA_CHIP, AREA_TEXT_DARK } from "@/lib/area-styles";
 import { isGameCompleted, useProgress, type ProgressMap } from "@/lib/progress";
 import { GameCard } from "./game-card";
@@ -37,6 +46,8 @@ const LEVEL_FILTERS: { id: Level | 0; label: string }[] = [
   { id: 1, label: "Nível 1" },
   { id: 2, label: "Nível 2" },
   { id: 3, label: "Nível 3" },
+  { id: 4, label: "Nível 4" },
+  { id: 5, label: "Nível 5" },
 ];
 
 const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [
@@ -154,7 +165,11 @@ export function GamesBrowser() {
   return (
     <section aria-labelledby="browser-title">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h2 id="browser-title" className="font-display text-2xl font-bold text-ink sm:text-3xl">
+        <h2
+          id="browser-title"
+          tabIndex={-1}
+          className="font-display text-2xl font-bold text-ink sm:text-3xl"
+        >
           Escolha sua investigação
         </h2>
         <p className="text-sm font-semibold text-ink-soft" aria-live="polite">
@@ -164,12 +179,16 @@ export function GamesBrowser() {
 
       {/* Busca + filtros */}
       <div className="mt-4 rounded-3xl border-2 border-border bg-cloud/70 p-4 sm:p-6">
+        <label htmlFor="game-search" className="mb-2 block text-sm font-bold text-ink">
+          Buscar jogos por título, tema ou BNCC
+        </label>
         <div className="relative">
           <Search
             className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-faint"
             aria-hidden
           />
           <input
+            id="game-search"
             type="search"
             value={filters.query}
             onChange={(e) => setFilters((f) => ({ ...f, query: e.target.value }))}
@@ -188,6 +207,16 @@ export function GamesBrowser() {
             </button>
           )}
         </div>
+
+        {hasActiveFilter && filtered.length > 0 && (
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="ludus-btn ludus-btn-paper ludus-btn-sm mt-4"
+          >
+            Limpar filtros
+          </button>
+        )}
 
         <div className="mt-4 flex flex-col gap-3">
           <FilterRow label="Área">
@@ -292,9 +321,24 @@ export function GamesBrowser() {
                     <p className="text-xs font-semibold text-ink-soft">{area.description}</p>
                   </div>
                   <span className={cn("ludus-chip", AREA_CHIP[areaId])}>
-                    {done}/{games.length} prontos
+                    {done}/{games.length} jogos registrados
                   </span>
                 </div>
+                <ol
+                  aria-label={`Progressão em ${area.shortName}`}
+                  className="mt-4 grid gap-2 sm:grid-cols-5"
+                >
+                  {LEVEL_ORDER.map((level) => (
+                    <li key={level} className="rounded-xl border-2 border-border bg-surface p-3">
+                      <p className="font-display text-sm font-bold text-ink">
+                        {LEVEL_LABEL[level]}
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+                        {LEVEL_DESCRIPTION[level]}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {games.map((game) => (
                     <GameCard key={game.id} game={game} progress={progress[game.id]} />

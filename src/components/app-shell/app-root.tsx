@@ -9,17 +9,28 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { AppHeader } from "@/components/app-shell/app-header";
 import { AppBottomNav } from "@/components/app-shell/app-bottom-nav";
 import { AppFooter } from "@/components/app-shell/app-footer";
 import { HubView } from "@/components/hub/hub-view";
 import { ProgressDashboard } from "@/components/progress/progress-dashboard";
-import { TeacherPanel } from "@/components/teacher/teacher-panel";
 import { GAME_COMPONENTS } from "@/games/registry";
 import { GAME_BY_ID } from "@/lib/catalog";
 import { useAppRoute, hrefFor } from "@/lib/router";
 import { useProgress } from "@/lib/progress";
 import { stopSpeech } from "@/lib/speech";
+
+const TeacherPanel = dynamic(
+  () => import("@/components/teacher/teacher-panel").then((module) => module.TeacherPanel),
+  {
+    loading: () => (
+      <p role="status" className="p-6 text-ink">
+        Preparando as fichas pedagógicas...
+      </p>
+    ),
+  },
+);
 
 export function AppRoot() {
   const { route, navigate } = useAppRoute();
@@ -70,8 +81,13 @@ export function AppRoot() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <a href="#ludus-main" className="ludus-skip-link">
+        Ir para o conteúdo
+      </a>
       <AppHeader current={route.view} />
       <main
+        id="ludus-main"
+        tabIndex={-1}
         key={inGame ? route.gameId : route.view}
         className={`anim-fade-up flex-1 ${inGame ? "" : "pb-nav sm:pb-0"}`}
       >
