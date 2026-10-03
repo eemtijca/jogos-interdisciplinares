@@ -1,12 +1,57 @@
 # Ludus
 
+[![Qualidade](https://github.com/eemtijca/ludus/actions/workflows/qualidade.yml/badge.svg)](https://github.com/eemtijca/ludus/actions/workflows/qualidade.yml)
+[![Testes](https://github.com/eemtijca/ludus/actions/workflows/testes.yml/badge.svg)](https://github.com/eemtijca/ludus/actions/workflows/testes.yml)
+[![Licença](https://img.shields.io/github/license/eemtijca/ludus)](LICENSE)
+
+![Hub de jogos no desktop](docs/imagens/hub-desktop.png)
+
 Aplicação web de jogos educacionais de investigação para o ensino médio, organizada por áreas do conhecimento da BNCC. O projeto é um recurso de apoio ao Atendimento Educacional Especializado (AEE) e segue os princípios do Desenho Universal para a Aprendizagem (DUA): atividades sem cronômetro, leitura em voz alta, repetição livre e ritmo próprio do estudante.
 
 A coleção reúne 20 jogos, cinco por área (Linguagens, Matemática, Ciências da Natureza e Ciências Humanas), e cada jogo oferece três casos. Não há contas, banco de dados ou servidor de aplicação: todo o estado permanece no navegador do dispositivo.
 
+Aplicação publicada em https://ludusjca.vercel.app.
+
+<details>
+<summary>Sumário</summary>
+
+- [Demonstração](#demonstração)
+- [Requisitos](#requisitos)
+- [Instalação e execução](#instalação-e-execução)
+- [Scripts](#scripts)
+- [Como usar](#como-usar)
+- [Stack](#stack)
+- [Arquitetura](#arquitetura)
+- [Catálogo de jogos](#catálogo-de-jogos)
+- [Design system](#design-system)
+- [Alto contraste e temas](#alto-contraste-e-temas)
+- [Como adicionar um jogo](#como-adicionar-um-jogo)
+- [API](#api)
+- [Testes e qualidade](#testes-e-qualidade)
+- [Deploy](#deploy)
+- [Privacidade](#privacidade)
+- [Segurança](#segurança)
+- [Roadmap](#roadmap)
+- [Perguntas frequentes](#perguntas-frequentes)
+- [Limitações conhecidas](#limitações-conhecidas)
+- [Pesquisa e evidências](#pesquisa-e-evidencias)
+- [Contribuindo](#contribuindo)
+- [Suporte](#suporte)
+- [Licença e créditos](#licença-e-créditos)
+
+</details>
+
+## Demonstração
+
+A aplicação publicada fica em https://ludusjca.vercel.app. Não há login: basta escolher um jogo no hub e jogar. O progresso é salvo no próprio navegador.
+
+![Hub no celular](docs/imagens/hub-mobile.png)
+
 ## Requisitos
 
-- Node.js 20 ou superior
+- Node.js 20 ou superior.
+
+Não há variáveis de ambiente obrigatórias nem banco de dados.
 
 ## Instalação e execução
 
@@ -24,7 +69,7 @@ npm run start
 
 O build usa a saída `standalone` do Next.js e copia os arquivos estáticos e a pasta `public` para `.next/standalone`. O script `start` executa o servidor standalone com Node.
 
-Os scripts Node em `scripts/` são portáveis entre Windows e Linux. Para testar em contêiner, iniciar Docker e manter o aplicativo no ar; no Windows, usar `host.docker.internal` como endereço do host no contêiner. No Linux, permanece a rede host do script Bash. Não existem variáveis de ambiente obrigatórias nem banco de dados. Funciona em qualquer hospedagem Node.js, como Vercel, Railway ou um servidor local da escola.
+Os scripts Node em `scripts/` são portáveis entre Windows e Linux. Para testar em contêiner, iniciar Docker e manter o aplicativo no ar; no Windows, usar `host.docker.internal` como endereço do host no contêiner. No Linux, permanece a rede host do script Bash. Funciona em qualquer hospedagem Node.js, como Vercel, Railway ou um servidor local da escola.
 
 ## Scripts
 
@@ -38,8 +83,17 @@ Os scripts Node em `scripts/` são portáveis entre Windows e Linux. Para testar
 | `test:e2e`         | `playwright test`                        | Suíte de fumaça no navegador              |
 | `test:e2e:docker`  | imagem oficial do Playwright             | Alternativa principal, em contêiner       |
 | `test:e2e:install` | instala os navegadores no host           | Alternativa local                         |
+| `capturas:readme`  | `playwright test tests/e2e/imagens.spec.ts` | Regenera as capturas de `docs/imagens/` |
 
 Observação: o `next.config.ts` ignora erros de tipo no build, por isso a checagem de tipos roda separadamente com `npm run tsc`. A suíte cobre as 20 rotas, os 60 casos, integridade de conteúdo e modelos, jornadas completas por área, preservação do progresso, filtros, modo professor, teclado, preferências, responsividade e API de saúde. A execução principal usa a imagem oficial do Playwright.
+
+## Como usar
+
+1. Abra o hub e escolha um jogo por área, nível ou busca.
+2. Em cada caso, percorra as fases Explorar, Testar e Decidir.
+3. Use as pistas e a resolução com apoio quando precisar; a retentativa é livre.
+4. Ao concluir, o selo e o progresso ficam salvos no navegador.
+5. O modo professor reúne as fichas com códigos BNCC e a progressão interna de cada jogo.
 
 ## Stack
 
@@ -57,6 +111,14 @@ Observação: o `next.config.ts` ignora erros de tipo no build, por isso a checa
 | Som         | Web Audio API com efeitos sintetizados, sem arquivos de áudio |
 
 ## Arquitetura
+
+```mermaid
+flowchart LR
+  E[Estudante] -->|Next.js estático| A[Aplicação Ludus]
+  A -->|localStorage| P[(Progresso e preferências)]
+  A -->|Web Speech API| V[Leitura em voz alta]
+  A -->|MathJax local| M[Fórmulas e mhchem]
+```
 
 ### Roteamento
 
@@ -178,6 +240,8 @@ O tema de alto contraste é aplicado pela classe `a11y-contrast` no elemento `ht
 
 O modo escuro baseado em classe (`.dark`) existe no CSS, mas a interface do produto utiliza o tema claro e o tema de alto contraste.
 
+![Jogo com alto contraste e texto amplo no celular](docs/imagens/jogo-contraste-mobile.png)
+
 ## Como adicionar um jogo
 
 1. Registre os metadados em `src/lib/catalog.ts` com área, nível, BNCC, ícone e habilidades.
@@ -188,6 +252,55 @@ O modo escuro baseado em classe (`.dark`) existe no CSS, mas a interface do prod
 ## API
 
 Existe um único endpoint de verificação de saúde em `GET /api`, que responde com nome da aplicação, status e horário. Não há outras rotas de servidor.
+
+## Testes e qualidade
+
+| Comando              | Efeito                                                        |
+| -------------------- | ------------------------------------------------------------- |
+| `npm run lint`       | Análise estática do código.                                   |
+| `npm run tsc`        | Checagem de tipos, separada do build.                         |
+| `npm run test:e2e:docker` | Suíte de fumaça na imagem oficial, com o aplicativo no ar. |
+| `npm run capturas:readme` | Regenera as capturas do README em `docs/imagens/`.       |
+
+A suíte roda primariamente em contêiner, conforme [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Feemtijca%2Fludus&project-name=ludus&repository-name=ludus)
+
+Não há variáveis de ambiente nem banco. O build `standalone` funciona em qualquer hospedagem Node.js, como Vercel, Railway ou um servidor local da escola.
+
+## Privacidade
+
+Não há contas, cadastro nem coleta de dados pessoais. O progresso e as preferências ficam apenas no `localStorage` do navegador e não são sincronizados entre dispositivos. O repositório não contém dados de estudantes.
+
+## Segurança
+
+Não há servidor de aplicação nem banco de dados; a superfície exposta é o build estático. Vulnerabilidades são reportadas em issue privada ou security advisory, conforme [SECURITY.md](SECURITY.md).
+
+## Roadmap
+
+A próxima versão minor é a 1.1.0, com as mudanças registradas no [CHANGELOG.md](CHANGELOG.md). Depois dela, as propostas seguem nas [issues do repositório](https://github.com/eemtijca/ludus/issues).
+
+## Perguntas frequentes
+
+**Precisa de conta para jogar?**
+Não. A coleção abre direto no navegador, sem cadastro nem login.
+
+**O progresso sincroniza entre dispositivos?**
+Não. Ele fica no `localStorage` do navegador e não sai do dispositivo.
+
+**Funciona sem internet?**
+A aplicação exige conexão; o estado local não é um modo offline dos arquivos.
+
+**Os selos certificam domínio?**
+Não. Eles registram participação, incluindo resolução com apoio, e não atribuem nota.
+
+**A leitura em voz alta funciona em qualquer aparelho?**
+Depende das vozes pt-BR disponíveis no sistema e no navegador.
+
+**Onde reporto um problema?**
+Em uma issue no GitHub. Vulnerabilidades seguem o [SECURITY.md](SECURITY.md).
 
 ## Limitações conhecidas
 
@@ -211,6 +324,10 @@ Contribuições são bem-vindas: issues e pull requests seguem o [CONTRIBUTING.m
 
 - Bugs e melhorias entram pelos modelos de issue.
 - Vulnerabilidades seguem o [SECURITY.md](./SECURITY.md), nunca uma issue pública.
+
+## Suporte
+
+Dúvidas e problemas são bem-vindos nas [issues do repositório](https://github.com/eemtijca/ludus/issues).
 
 ## Licença e créditos
 
