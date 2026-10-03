@@ -1,8 +1,19 @@
 import type { Locator, Page } from "@playwright/test";
 import { INVESTIGATION_CASES } from "../../src/games/cases";
-import { answerTask, expect, test, expectNoPageOverflow, readProgress } from "./fixtures";
+import {
+  answerTask,
+  expect,
+  test,
+  expectNoPageOverflow,
+  expectHydrated,
+  mainVisivel,
+  readProgress,
+} from "./fixtures";
 
 async function activateWithKeyboard(page: Page, target: Locator) {
+  // A hidratação precisa estar concluída para o Tab percorrer a árvore real,
+  // e não o HTML do servidor que o React substitui durante a montagem.
+  await expectHydrated(page);
   for (let step = 0; step < 150; step++) {
     if (await target.evaluate((element) => element === document.activeElement)) {
       await page.keyboard.press("Enter");
@@ -75,12 +86,14 @@ test.describe("Acessibilidade funcional", () => {
     ).toHaveAttribute("aria-pressed", "true");
     await expectNoPageOverflow(page);
     await page.reload();
+    // O roteador mantém uma cópia offscreen durante o pré-carregamento; o main visível é o alvo.
+    await expect(mainVisivel(page)).toBeVisible();
     await expect(page.locator("html")).toHaveClass(/a11y-contrast/);
     await expect(page.locator("html")).toHaveClass(/a11y-text-large/);
     await expect(page.locator("html")).toHaveClass(/a11y-reduced-motion/);
-    const duration = await page
-      .locator("#ludus-main")
-      .evaluate((element) => getComputedStyle(element).animationDuration);
+    const duration = await mainVisivel(page).evaluate(
+      (element) => getComputedStyle(element).animationDuration,
+    );
     expect(duration.split(",").every((value) => parseFloat(value) <= 0.01)).toBe(true);
     for (const route of ["/", "/progresso", "/professores"]) {
       await page.goto(route);
@@ -91,10 +104,11 @@ test.describe("Acessibilidade funcional", () => {
 
   test("conclui uma investigação pelo teclado com apoio e foco na conclusão", async ({ page }) => {
     await page.goto("/jogo/fonte-suspeita");
+    await expectHydrated(page);
     await page.keyboard.press("Tab");
     await expect(page.getByRole("link", { name: "Ir para o conteúdo" })).toBeFocused();
     await page.keyboard.press("Enter");
-    await expect(page.locator("#ludus-main")).toBeFocused();
+    await expect(mainVisivel(page)).toBeFocused();
     await activateWithKeyboard(
       page,
       page.getByRole("button", { name: "Testar hipóteses", exact: true }),
@@ -131,9 +145,9 @@ test.describe("Acessibilidade funcional", () => {
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/jogo/funcao-viva");
-    const duration = await page
-      .locator("#ludus-main")
-      .evaluate((element) => getComputedStyle(element).animationDuration);
+    const duration = await mainVisivel(page).evaluate(
+      (element) => getComputedStyle(element).animationDuration,
+    );
     expect(duration.split(",").every((value) => parseFloat(value) <= 0.01)).toBe(true);
     await expect(page.getByRole("button", { name: /^Ouvir contexto/ })).toBeVisible();
     await expect(page.getByRole("button", { name: /^Ouvir evidência:/ })).toHaveCount(3);
@@ -352,8 +366,11 @@ test.describe("Acessibilidade funcional", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "Alternar texto amplo" }).click();
     await page.goto("/jogo/orcamento-limite");
+    await expectHydrated(page);
     await page.keyboard.press("Tab");
+    await expect(page.getByRole("link", { name: "Ir para o conteúdo" })).toBeFocused();
     await page.keyboard.press("Enter");
+    await expect(mainVisivel(page)).toBeFocused();
     await activateWithKeyboard(
       page,
       page
