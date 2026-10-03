@@ -108,17 +108,17 @@ Verificações finais executadas em 2 de outubro de 2026, no Windows com PowerSh
 
 A execução integral reuniu 108 testes em oito arquivos, nos projetos Chromium desktop e Mobile Chrome, com um worker, sem novas tentativas automáticas. Começou às 12:05:26 no fuso America/Fortaleza e durou aproximadamente 5 minutos e 25 segundos. Cada projeto aprovou 53 testes e ignorou somente a captura destinada ao outro tamanho de tela. Os dois testes ignorados não representam funcionalidades pendentes.
 
-O [resumo estruturado da execução](evidencias/resumo-execucao.json) registra comandos, versões, digest da imagem e contagens extraídas do resultado do Playwright. As verificações cobrem catálogo com 20 identificadores e cinco níveis por área, 60 casos, coerência de gabaritos, cálculos de referência e limites de modelos; abertura das 20 rotas; jornadas completas nas quatro áreas; resposta correta, erro, pista e apoio; repetição sem regressão; legado e armazenamento malformado; filtros, fichas docentes e cópia de link; teclado, foco, preferências, responsividade e API.
+A execução integral está descrita nos comandos e resultados acima, com as contagens extraídas do resultado do Playwright. As verificações cobrem catálogo com 20 identificadores e cinco níveis por área, 60 casos, coerência de gabaritos, cálculos de referência e limites de modelos; abertura das 20 rotas; jornadas completas nas quatro áreas; resposta correta, erro, pista e apoio; repetição sem regressão; legado e armazenamento malformado; filtros, fichas docentes e cópia de link; teclado, foco, preferências, responsividade e API.
 
 Regressões específicas conferem texto amplo e alto contraste a 320 pixels nas quatro superfícies e jornadas completas das quatro áreas com texto amplo; cenário do laboratório preservado na decisão e restauração dos parâmetros iniciais; tabela de comparação percorrida por teclado e atalho ao catálogo com foco; troca de leitura no primeiro clique, cancelamento ao editar ou remover feedback, preservação da voz de outro botão, referência falada no apoio e ausência da API; cópia confirmada somente após a promessa resolver e endereço selecionável após rejeição; MathJax local com mhchem e potência, sem erro de renderização nem comandos TeX na transcrição para fala. As simulações de voz e clipboard não comprovam qualidade audível ou permissões reais do sistema. O teste de TeX cobre dois exemplos, sem declarar compatibilidade com todo comando possível.
 
 Foram produzidas e examinadas as seguintes capturas com estado limpo e casos fictícios:
 
-- [Hub no desktop](evidencias/hub-desktop.png).
-- [Modo professor no desktop](evidencias/professores-desktop.png), com revisão das seções visíveis; os corpos das fichas ficam abaixo do recorte.
-- [Hub no celular](evidencias/hub-mobile.png).
-- [Jogo com alto contraste e texto amplo no celular](evidencias/jogo-contraste-mobile.png), em página completa.
-- [Progresso no celular](evidencias/progresso-mobile.png).
+- [Hub no desktop](imagens/hub-desktop.png).
+- [Modo professor no desktop](imagens/professores-desktop.png), com revisão das seções visíveis; os corpos das fichas ficam abaixo do recorte.
+- [Hub no celular](imagens/hub-mobile.png).
+- [Jogo com alto contraste e texto amplo no celular](imagens/jogo-contraste-mobile.png), em página completa.
+- [Progresso no celular](imagens/progresso-mobile.png).
 
 As capturas examinadas não apresentaram sobreposição ou corte material nos estados mostrados. O extravasamento encontrado durante integração no painel a 320 pixels com texto amplo foi corrigido na grade e na quebra dos títulos antes da execução integral aprovada. Nenhum arquivo em `src/components/ui` ou `public/mathjax` foi alterado.
 

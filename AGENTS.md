@@ -33,6 +33,7 @@ Pré-requisitos: Node 20 ou superior e, para a suíte em contêiner, Docker. Nã
 - Os scripts Node em `scripts/` tornam dev, build, start e contêiner portáveis. No Windows, o Playwright usa `host.docker.internal`; no Linux, mantém o script Bash e a rede host.
 - O CI separa `qualidade.yml` (lint, tipos e build) e `testes.yml` (ponta a ponta no Chromium em contêiner).
 - Etiquetas: `npm run etiquetas:sync` cria ou atualiza as etiquetas do GitHub conforme `.github/labels.json`.
+- Capturas do README: `npm run capturas:readme` ou `npm run capturas:readme:docker`, com o aplicativo no ar. Os PNGs ficam em `docs/imagens/` e não são editados à mão.
 
 ## Ferramentas externas
 

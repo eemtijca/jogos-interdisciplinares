@@ -2,13 +2,13 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { expect, expectNoPageOverflow, test } from "./fixtures";
 
-const evidenceDirectory = path.resolve(process.cwd(), "docs/evidencias");
+const evidenceDirectory = path.resolve(process.cwd(), "docs/imagens");
 
 test.describe("Capturas revisáveis de estados sem dados reais", () => {
   test("hub e professores no desktop", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "chromium", "Capturas de desktop apenas neste projeto.");
     await mkdir(evidenceDirectory, { recursive: true });
-    await page.setViewportSize({ width: 1440, height: 1100 });
+    await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     await expect(page.getByRole("link", { name: /^Jogar / })).toHaveCount(20);
     await expectNoPageOverflow(page);

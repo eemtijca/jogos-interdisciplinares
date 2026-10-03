@@ -12,6 +12,8 @@
     "test:e2e:docker": "node scripts/playwright-container.mjs",
     "test:e2e:docker:chromium": "node scripts/playwright-container.mjs --project=chromium",
     "test:e2e:install": "playwright install --with-deps chromium",
+    "capturas:readme": "playwright test tests/e2e/imagens.spec.ts",
+    "capturas:readme:docker": "node scripts/playwright-container.mjs tests/e2e/imagens.spec.ts",
     "etiquetas:sync": "node scripts/sincronizar-etiquetas.mjs"
   },
   "dependencies": {

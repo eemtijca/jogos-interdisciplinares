@@ -251,7 +251,10 @@ Também cobre as 20 rotas de jogos, os 60 casos, integridade dos conteúdos, pro
 npm run test:e2e:docker            # todos os projetos, na imagem oficial
 npm run test:e2e:docker:chromium   # apenas o Chromium
 npm run test:e2e                   # alternativa local, sobe o servidor
+npm run capturas:readme            # capturas do README em docs/imagens
 ```
+
+As capturas do README ficam em `docs/imagens/` e são geradas por `tests/e2e/imagens.spec.ts`, com o aplicativo no ar: `npm run capturas:readme` no host ou `npm run capturas:readme:docker` na imagem oficial. Os PNGs são versionados e não devem ser editados à mão.
 
 Regras:
 
