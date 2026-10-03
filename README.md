@@ -205,6 +205,13 @@ Existe um único endpoint de verificação de saúde em `GET /api`, que responde
 
 Os estudos fundamentam a proposta, sem substituir validação em sala. AEE complementa a escolarização, e a mediação deve considerar as necessidades de cada estudante. O estado local permanece no navegador; isso não implica instalação offline dos arquivos do aplicativo.
 
+## Contribuindo
+
+Contribuições são bem-vindas: issues e pull requests seguem o [CONTRIBUTING.md](./CONTRIBUTING.md), com etiquetas obrigatórias de tipo e área, commits atômicos em um único pull request e abertura somente com o trabalho finalizado. Agentes de IA seguem o [AGENTS.md](./AGENTS.md).
+
+- Bugs e melhorias entram pelos modelos de issue.
+- Vulnerabilidades seguem o [SECURITY.md](./SECURITY.md), nunca uma issue pública.
+
 ## Licença e créditos
 
 - Licença MIT. Consulte o arquivo [LICENSE](./LICENSE).
