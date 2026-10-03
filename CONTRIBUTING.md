@@ -6,6 +6,7 @@ Guia de desenvolvimento do Ludus: como preparar o ambiente, abrir issues, propor
 
 - Abra uma issue antes de trabalhar em funcionalidades, jogos novos, mudanças estruturais e correções grandes. Ajustes pequenos e evidentes podem seguir direto para um pull request.
 - Procure issues abertas e fechadas antes de criar uma nova. Havendo uma equivalente, comente para assumir a tarefa e evitar trabalho duplicado.
+- Aplique as etiquetas de tipo e de área em toda issue e todo pull request, conforme a seção [Etiquetas](#etiquetas).
 - Descreva o contexto com clareza: passos de reprodução, comportamento observado, comportamento esperado e versão ou commit afetado.
 - Mantenha a conversa pública nas issues e nos pull requests. Canais privados ficam reservados para vulnerabilidades e assuntos de conduta.
 - Nunca inclua segredos ou dados reais de estudantes em issues, comandos, commits, capturas ou logs.
@@ -38,6 +39,7 @@ Comandos úteis na raiz:
 | `npm run tsc`             | Checagem de tipos (o build não a executa).       |
 | `npm run test:e2e:docker` | Suíte de fumaça na imagem oficial do Playwright. |
 | `npm run test:e2e`        | Alternativa local, sobe o servidor sozinho.      |
+| `npm run etiquetas:sync`  | Sincroniza as etiquetas do GitHub com o catálogo. |
 
 ## Fluxo de contribuição e pull requests
 
@@ -48,7 +50,8 @@ Opere issues, pull requests, execuções de workflow e releases pelo GitHub CLI 
 Comandos do dia a dia:
 
 - `gh issue create`, `gh issue list` e `gh issue view` para issues.
-- `gh pr create --fill`, `gh pr view` e `gh pr checks --watch` para pull requests.
+- `gh pr create`, `gh pr view` e `gh pr checks --watch` para pull requests.
+- `gh pr edit <número> --add-label <etiqueta>` para corrigir etiquetas.
 - `gh run list`, `gh run watch` e `gh run view --log-failed` para workflows.
 - `gh release create` e `gh release view` para releases.
 
@@ -63,7 +66,7 @@ Abra uma issue quando:
 - discutir uma decisão estrutural ou pedagógica;
 - apontar falha ou lacuna de documentação.
 
-Antes de abrir, procure issues abertas e fechadas com termos relacionados. Os modelos disponíveis são Bug, Melhoria e o contato para segurança; escolha o mais adequado e preencha os campos obrigatórios.
+Antes de abrir, procure issues abertas e fechadas com termos relacionados. Os modelos disponíveis são Bug, Melhoria, Tarefa e os contatos para segurança, documentação e contribuição; escolha o mais adequado e preencha os campos obrigatórios.
 
 Uma boa issue contém:
 
@@ -72,11 +75,35 @@ Uma boa issue contém:
 - ambiente envolvido (navegador, dispositivo, versão ou commit);
 - contexto adicional, sem dados reais nem segredos.
 
-Labels usadas: `bug`, `enhancement`, `documentation`, `question`, `good first issue`, `help wanted` e `dependencies`.
+As etiquetas de tipo, área, prioridade e triagem estão descritas na seção [Etiquetas](#etiquetas).
 
 A triagem acontece em até 7 dias. Uma issue pode ser fechada sem correção quando estiver fora do escopo, duplicada ou sem informação; nesse caso o motivo é explicado e a porta fica aberta para uma proposta mais precisa. Se a issue aberta for resolvida por conta própria, comente o desfecho e feche.
 
 Relacione a issue ao pull request com `Closes #123` quando a mudança encerrar o assunto, ou `Refs #123` quando apenas caminhar na direção dele. A ligação com `Closes` só funciona no pull request que aponta para a branch padrão.
+
+### Etiquetas
+
+Toda issue e todo pull request recebe ao menos uma etiqueta de tipo e uma de área. A prioridade é definida na triagem, e a etiqueta `triagem` sai quando o tipo, a área e a prioridade estiverem confirmados. Pull requests do Dependabot recebem `dependencies` automaticamente e dispensam as demais.
+
+| Grupo      | Etiquetas                                                                                     | Uso                                                |
+| ---------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Tipo       | `bug`, `enhancement`, `documentation`, `refactor`, `testes`, `ci`, `desempenho`, `manutencao` | Natureza da mudança.                               |
+| Área       | `area: jogos`, `area: progresso`, `area: acessibilidade`, `area: professor`, `area: plataforma` | Parte do sistema afetada.                         |
+| Prioridade | `prioridade: alta`, `prioridade: media`, `prioridade: baixa`                                  | Urgência definida na triagem.                      |
+| Triagem    | `triagem`                                                                                     | Aguardando confirmação de tipo, área e prioridade. |
+
+O catálogo fica em [.github/labels.json](../.github/labels.json) e é aplicado com `npm run etiquetas:sync`, que cria ou atualiza as etiquetas pelo GitHub CLI. O workflow `etiquetas.yml` aplica `area:` pelos caminhos alterados e o tipo pelo prefixo do título, e o check `validar` reprova pull requests sem etiqueta obrigatória ou com título fora do padrão Conventional Commits. Pull requests do tipo `docs` dispensam etiqueta de área.
+
+Antes de criar uma etiqueta nova, confirme que ela tem público, dono e regra automatizada no mesmo pull request, seja pelo catálogo, pelo mapeamento de caminhos ou pelo título. Etiqueta sem automação tende a não ser aplicada.
+
+Para aplicar:
+
+```bash
+gh issue create --label "bug" --label "area: acessibilidade"
+gh pr create --label "refactor" --label "area: jogos"
+gh pr edit 123 --add-label "prioridade: alta"
+gh pr view 123 --json labels
+```
 
 ### Branches
 
@@ -120,10 +147,15 @@ Escopos comuns: `plataforma`, `hub`, `jogo`, `progresso`, `professor`, `a11y`, `
 
 Regras:
 
-- Uma mudança por commit; se o commit cabe em mais de um tipo, divida.
+- Cada commit é atômico: contém uma única mudança lógica, completa e autossuficiente. O código compila e as verificações passam em cada commit.
+- Não misture contextos no mesmo commit, como formatação, refatoração e mudança de comportamento. Se o commit cabe em mais de um tipo, divida.
+- O histórico exposto não contém trabalho em andamento nem correção de revisão. Durante o desenvolvimento, use `git commit --fixup <commit>` e limpe a branch com `git rebase -i --autosquash` antes de publicar.
+- Todos os commits do mesmo assunto ficam em uma única branch e um único pull request.
+- Prefira mudanças pequenas e revisáveis, na linha do [Google Engineering Practices](https://google.github.io/eng-practices/review/developer/small-cls.html): cerca de 100 linhas é um tamanho razoável e 1000 é grande demais. Se o assunto não fechar em um pull request único, combine a divisão antes de começar.
 - Use o corpo para explicar o porquê quando a descrição não bastar.
 - Use rodapé para referências: `Closes #123`, `Refs #123`.
 - Mudança incompatível usa `!` depois do tipo ou escopo, ou o rodapé `BREAKING CHANGE:`.
+- Commits com geração relevante por ferramenta de IA levam o rodapé `Assisted-by: ferramenta:modelo`. A responsabilidade pela mudança é de quem envia.
 - Evite commits de trabalho em andamento na `main`; o histórico da `main` vem de pull requests.
 
 Exemplos do histórico:
@@ -136,14 +168,17 @@ refactor: reorganiza o projeto e padroniza o código em pt-BR
 
 ### Pull requests
 
-Um pull request resolve um assunto. Se a mudança misturar refatoração e comportamento, separe em pull requests menores. Refatorações grandes andam em pull request próprio, sem misturar com correção ou funcionalidade.
+Um pull request resolve um assunto e reúne todos os commits dele. Se a mudança misturar refatoração e comportamento, separe em pull requests menores. Refatorações grandes andam em pull request próprio, sem misturar com correção ou funcionalidade. Se o trabalho virar dois assuntos independentes, combine a divisão e abra pull requests separados.
 
-Abra o pull request cedo, como rascunho, quando quiser feedback durante o trabalho. Antes de pedir revisão, revise o próprio diff, confira se não entrou arquivo acidental e rode as verificações locais.
+Abra o pull request somente quando o trabalho estiver finalizado: verificações locais passando, título em Conventional Commits, documentação e CHANGELOG atualizados, etiquetas definidas e revisão do próprio diff feita. Não use `gh pr create --fill`, porque o corpo deve vir do template.
+
+Se o CI falhar ou surgir algo novo depois da abertura, converta o pull request para rascunho com `gh pr ready --undo`, faça os commits atômicos e rode as verificações de novo. Marque como pronto com `gh pr ready` somente com tudo verde. Enquanto o pull request estiver em rascunho, não peça revisão. Depois que a revisão começar, prefira commits novos que respondem ao feedback; se precisar reescrever a história, use `git push --force-with-lease` e explique o motivo na conversa.
 
 A descrição deve conter:
 
 - o problema e o resultado esperado;
 - o que mudou e por quê;
+- as etiquetas aplicadas;
 - como validar: comandos executados e, quando aplicável, capturas ou passos de interface;
 - riscos, incluindo mudanças que afetam o progresso salvo no dispositivo;
 - a issue relacionada, com `Closes #123` quando aplicável.
@@ -165,11 +200,12 @@ Toda mudança passa por revisão e pelos workflows do GitHub Actions:
 | Workflow        | Etapas                                                                    |
 | --------------- | ------------------------------------------------------------------------- |
 | `qualidade.yml` | `npm ci`, `lint`, `tsc` e `build` em pull requests.                       |
+| `etiquetas.yml` | Aplica etiquetas de área e de tipo e valida o título e as etiquetas em pull requests fora de rascunho. |
 | `testes.yml`    | Sobe o aplicativo e roda a suíte do Playwright no Chromium, em contêiner. |
 
 A `main` é protegida por rulesets: pull request obrigatório, checks verdes, conversas resolvidas e merge commit como único método. A autoaprovação não existe no GitHub; donos da organização podem mesclar os próprios pull requests com o bypass da regra de revisão, mas continuam sujeitos aos checks de qualidade.
 
-Corrija as falhas antes de pedir nova revisão. Pull requests sem CI verde não são mesclados. Evite force-push depois que a revisão começar; se precisar reescrever a história, explique o motivo na conversa.
+Corrija as falhas antes de pedir nova revisão. Pull requests sem CI verde não são mesclados. O check `validar` volta a rodar quando o título ou as etiquetas mudam; se faltar etiqueta, aplique com `gh pr edit --add-label`. Evite force-push depois que a revisão começar; se precisar reescrever a história, explique o motivo na conversa.
 
 ### Estratégia de merge
 
@@ -201,6 +237,10 @@ Acessibilidade é requisito do produto, não enfeite:
 - Respeite as preferências de `a11y-provider.tsx` (alto contraste, texto amplo e movimento reduzido) e a leitura em voz de `src/lib/speech.ts`.
 - Novos jogos passam pelos mesmos componentes de moldura, feedback e veredito, herdando os recursos de acessibilidade.
 - A resolução com apoio permite avançar após o erro e explica a resposta de referência. Selos registram participação. A justificativa livre pode ser escrita, oral ou discutida; a aplicação não a avalia automaticamente nem a persiste.
+
+### Contribuições assistidas por IA
+
+Ferramentas de IA são bem-vindas como apoio, mas a responsabilidade pela mudança é de quem envia, e a autoria dos commits é humana. Revise o resultado linha a linha, garanta que ele segue as convenções do repositório, rode as verificações locais e nunca cole segredos ou dados reais em ferramentas externas, issues ou commits. Commits com geração relevante levam o rodapé `Assisted-by: ferramenta:modelo`, e o template de pull request tem a seção "Uso de IA". Agentes seguem o [AGENTS.md](AGENTS.md), com as mesmas obrigações de etiquetas, commits atômicos, um único pull request e ciclo de rascunho.
 
 ## Testes e qualidade
 
