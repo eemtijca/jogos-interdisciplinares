@@ -1,0 +1,46 @@
+# Aplica etiquetas de área aos pull requests conforme os caminhos alterados.
+'area: jogos':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/games/**'
+          - 'src/components/hub/**'
+          - 'src/components/game-shell/**'
+          - 'src/app/jogo/**'
+          - 'src/lib/catalog.ts'
+          - 'src/lib/tex.ts'
+
+'area: progresso':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/components/progress/**'
+          - 'src/app/progresso/**'
+          - 'src/**/progress*'
+
+'area: acessibilidade':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/components/a11y/**'
+          - 'src/lib/speech.ts'
+          - 'src/**/a11y*'
+
+'area: professor':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/app/professores/**'
+          - 'src/components/teacher/**'
+
+'area: plataforma':
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+          - '.devcontainer/**'
+          - 'public/**'
+          - 'scripts/**'
+          - 'src/app/api/**'
+          - 'src/components/app-shell/**'
+          - 'src/components/mathjax/**'
+          - 'src/components/ui/**'
+          - 'src/hooks/**'
+          - 'eslint.config.mjs'
+          - 'next.config.ts'
+          - 'tsconfig.json'
