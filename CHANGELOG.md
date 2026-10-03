@@ -10,6 +10,9 @@ Próxima versão minor: 1.1.0. Alterações aditivas com preservação do progre
 
 ### Adicionado
 
+- Catálogo de etiquetas em `.github/labels.json` e script `npm run etiquetas:sync` para sincronizá-las pelo GitHub CLI.
+- Workflow `etiquetas.yml`, que aplica etiquetas de área pelos caminhos e de tipo pelo título e valida título e etiquetas em pull requests.
+- Templates de issue ampliados (Bug, Melhoria e Tarefa) e template de pull request com etiquetas, commits atômicos, ciclo de rascunho e uso de IA.
 - Oito jogos, completando cinco níveis em cada área e 60 casos na coleção.
 - Matriz de progressão, diagnóstico dos jogos anteriores e pesquisa com fontes oficiais e acadêmicas em `docs/`.
 - Laboratórios com controles, comparação de cenários, gráficos e tabelas equivalentes.
@@ -27,6 +30,7 @@ Próxima versão minor: 1.1.0. Alterações aditivas com preservação do progre
 
 ### Modificado
 
+- Guia de contribuição e AGENTS.md passam a exigir etiquetas em issues e pull requests, commits atômicos organizados em um único pull request e abertura somente com o trabalho finalizado.
 - Recriados os 12 jogos anteriores com hipóteses, limites das evidências, decisões fundamentadas e três casos progressivos por jogo.
 - Catálogo, filtros, cards, progresso, modo professor e leitura em voz atualizados para a coleção de 20 jogos.
 - Selos descritos como registro de participação, incluindo resolução com apoio, sem atribuição automática de domínio.

@@ -1,0 +1,94 @@
+{
+  "etiquetas": [
+    {
+      "nome": "bug",
+      "cor": "d73a4a",
+      "descricao": "Comportamento incorreto."
+    },
+    {
+      "nome": "documentation",
+      "cor": "0075ca",
+      "descricao": "Documentação."
+    },
+    {
+      "nome": "enhancement",
+      "cor": "a2eeef",
+      "descricao": "Funcionalidade ou melhoria."
+    },
+    {
+      "nome": "dependencies",
+      "cor": "0366d6",
+      "descricao": "Atualização de dependências."
+    },
+    {
+      "nome": "refactor",
+      "cor": "c7def8",
+      "descricao": "Mudança interna sem alterar comportamento."
+    },
+    {
+      "nome": "testes",
+      "cor": "bfe5bf",
+      "descricao": "Testes e massa de dados."
+    },
+    {
+      "nome": "ci",
+      "cor": "fef2c0",
+      "descricao": "Workflows e automação."
+    },
+    {
+      "nome": "desempenho",
+      "cor": "f9d0c4",
+      "descricao": "Desempenho e eficiência."
+    },
+    {
+      "nome": "manutencao",
+      "cor": "ededed",
+      "descricao": "Manutenção, dependências e tarefas gerais."
+    },
+    {
+      "nome": "area: jogos",
+      "cor": "d4c5f9",
+      "descricao": "Catálogo, casos e palcos dos jogos."
+    },
+    {
+      "nome": "area: progresso",
+      "cor": "d4c5f9",
+      "descricao": "Progresso, selos e histórico local."
+    },
+    {
+      "nome": "area: acessibilidade",
+      "cor": "d4c5f9",
+      "descricao": "Acessibilidade, DUA, leitura em voz e teclado."
+    },
+    {
+      "nome": "area: professor",
+      "cor": "d4c5f9",
+      "descricao": "Modo professor, fichas e roteiro formativo."
+    },
+    {
+      "nome": "area: plataforma",
+      "cor": "d4c5f9",
+      "descricao": "Plataforma, navegação, componentes e infraestrutura."
+    },
+    {
+      "nome": "prioridade: alta",
+      "cor": "b60205",
+      "descricao": "Deve ser tratada em seguida."
+    },
+    {
+      "nome": "prioridade: media",
+      "cor": "fbca04",
+      "descricao": "Importante, sem urgência imediata."
+    },
+    {
+      "nome": "prioridade: baixa",
+      "cor": "c2e0c6",
+      "descricao": "Pode aguardar."
+    },
+    {
+      "nome": "triagem",
+      "cor": "ededed",
+      "descricao": "Aguardando triagem de tipo, área e prioridade."
+    }
+  ]
+}
