@@ -6,3 +6,6 @@ contact_links:
   - name: Documentação
     url: https://github.com/eemtijca/ludus/blob/main/README.md
     about: Consulte o guia do projeto antes de abrir uma issue.
+  - name: Guia de contribuição
+    url: https://github.com/eemtijca/ludus/blob/main/CONTRIBUTING.md
+    about: Consulte as regras de etiquetas, commits e pull requests antes de contribuir.
