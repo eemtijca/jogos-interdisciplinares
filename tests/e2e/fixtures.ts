@@ -37,6 +37,30 @@ export const test = base.extend<{ estadoLocal: void }>({
 
 export { expect };
 
+/** O main visível da aplicação, ignorando a cópia offscreen do pré-carregamento de rotas. */
+export function mainVisivel(page: Page): Locator {
+  return page.locator("#ludus-main:visible");
+}
+
+/** Aguarda a hidratação do React antes de começar um percurso de teclado. */
+export async function expectHydrated(page: Page, seletor = "#ludus-main") {
+  await expect
+    .poll(
+      () =>
+        page
+          .evaluate((alvo) => {
+            const elemento = Array.from(document.querySelectorAll<HTMLElement>(alvo)).find(
+              (candidato) => candidato.getBoundingClientRect().width > 0,
+            );
+            if (!elemento) return false;
+            return Object.keys(elemento).some((chave) => chave.startsWith("__reactProps"));
+          }, seletor)
+          .catch(() => false),
+      { timeout: 20_000 },
+    )
+    .toBe(true);
+}
+
 export async function answerTask(fieldset: Locator, task: InvestigationTask, correct = true) {
   if (task.kind === "number") {
     const answer = correct ? String(task.answer).replace(".", ",") : "-999999";
