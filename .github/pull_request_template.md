@@ -38,9 +38,9 @@ Informe os comandos executados e, quando aplicável, os passos de interface. Inc
 
 Descreva riscos, incluindo mudanças que afetam o progresso salvo no dispositivo. Use "Não se aplica" quando não houver.
 
-## Notas para o CHANGELOG
+## Impacto de versão
 
-Escreva a entrada da seção Não publicado ou informe "Não se aplica".
+Aplique a etiqueta `versao:` correspondente ao impacto: `versao: maior` para mudança incompatível, `versao: menor` para funcionalidade nova compatível e `versao: correcao` para correção compatível. A partir da v1.0.0, o changelog é gerado a partir dos commits convencionais, então o título do pull request é a fonte da entrada.
 
 ## Acessibilidade
 
