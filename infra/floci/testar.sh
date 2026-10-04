@@ -60,6 +60,32 @@ iniciar_terraform() {
   terraform -chdir="$1" init -no-color -input=false
 }
 
+# Os emuladores oscilam em operações longas; uma segunda tentativa deixa o
+# teste estável sem esconder erros de configuração.
+aplicar_terraform() {
+  local diretorio="$1"
+  shift
+  if timeout 1800 terraform -chdir="$diretorio" apply -no-color -input=false -auto-approve \
+    -parallelism=4 "$@"; then
+    return 0
+  fi
+  log "A primeira tentativa de apply em ${diretorio} falhou; repetindo."
+  timeout 1800 terraform -chdir="$diretorio" apply -no-color -input=false -auto-approve \
+    -parallelism=4 "$@"
+}
+
+destruir_terraform() {
+  local diretorio="$1"
+  shift
+  if timeout 1800 terraform -chdir="$diretorio" destroy -no-color -input=false -auto-approve \
+    -parallelism=4 "$@"; then
+    return 0
+  fi
+  log "A primeira tentativa de destroy em ${diretorio} falhou; repetindo."
+  timeout 1800 terraform -chdir="$diretorio" destroy -no-color -input=false -auto-approve \
+    -parallelism=4 "$@"
+}
+
 # A tarefa leva alguns segundos para subir e ser registrada como alvo saudável
 # no balanceador ou no proxy; a sonda repete até responder.
 tentar_saude() {
@@ -111,8 +137,7 @@ habilitar_alarmes  = false
 EOF
 
   iniciar_terraform infra/terraform/aws
-  timeout 1800 terraform -chdir=infra/terraform/aws apply -no-color -input=false -auto-approve \
-    -var-file=terraform.tfvars.local
+  aplicar_terraform infra/terraform/aws -var-file=terraform.tfvars.local
 
   local alb resposta
   alb="$(terraform -chdir=infra/terraform/aws output -raw alb_dns)"
@@ -124,8 +149,7 @@ EOF
   printf '%s\n' "$resposta"
 
   if [ "$MANTER" != 'true' ]; then
-    timeout 1800 terraform -chdir=infra/terraform/aws destroy -no-color -input=false \
-      -auto-approve -var-file=terraform.tfvars.local
+    destruir_terraform infra/terraform/aws -var-file=terraform.tfvars.local
   fi
 }
 
@@ -145,8 +169,7 @@ habilitar_alarmes  = false
 EOF
 
   iniciar_terraform infra/terraform/azure
-  timeout 1800 terraform -chdir=infra/terraform/azure apply -no-color -input=false -auto-approve \
-    -var-file=terraform.tfvars.local -var="sufixo_revisao=${sufixo}"
+  aplicar_terraform infra/terraform/azure -var-file=terraform.tfvars.local -var="sufixo_revisao=${sufixo}"
 
   local fqdn resposta
   fqdn="$(curl -sk --max-time 10 -H 'Authorization: Bearer fake' \
@@ -173,8 +196,7 @@ EOF
   printf '%s\n' "$resposta"
 
   if [ "$MANTER" != 'true' ]; then
-    timeout 1800 terraform -chdir=infra/terraform/azure destroy -no-color -input=false \
-      -auto-approve -var-file=terraform.tfvars.local -var="sufixo_revisao=${sufixo}"
+    destruir_terraform infra/terraform/azure -var-file=terraform.tfvars.local -var="sufixo_revisao=${sufixo}"
   fi
 }
 
@@ -191,8 +213,7 @@ habilitar_alarmes = false
 EOF
 
   iniciar_terraform infra/terraform/gcp
-  timeout 1800 terraform -chdir=infra/terraform/gcp apply -no-color -input=false -auto-approve \
-    -var-file=terraform.tfvars.local
+  aplicar_terraform infra/terraform/gcp -var-file=terraform.tfvars.local
 
   local url fqdn resposta
   url="$(terraform -chdir=infra/terraform/gcp output -raw url_servico_cloud_run)"
@@ -217,8 +238,7 @@ EOF
   printf '%s\n' "$resposta"
 
   if [ "$MANTER" != 'true' ]; then
-    timeout 1800 terraform -chdir=infra/terraform/gcp destroy -no-color -input=false \
-      -auto-approve -var-file=terraform.tfvars.local
+    destruir_terraform infra/terraform/gcp -var-file=terraform.tfvars.local
   fi
 }
 
