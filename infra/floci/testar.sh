@@ -182,14 +182,16 @@ EOF
   if ! resposta="$(ESPERAR_TENTATIVAS=3 esperar_saude curl -sk --max-time 10 -H "Host: ${fqdn}" "https://localhost:${porta_az}/api")"; then
     log 'O ingresso emulado não repassa a requisição; conferindo o contêiner do Container App diretamente.'
     local conteiner_ca ip_ca
-    conteiner_ca="$(docker ps --format '{{.Names}}' | grep -- '^floci-az-ca-ludus-local-app-' | head -1)"
+    conteiner_ca="$(docker ps --format '{{.Names}}' | grep -E 'ca-ludus-local-app' | head -1)"
     ip_ca="$(ip_do_conteiner "$conteiner_ca")"
     if [ -z "$ip_ca" ]; then
-      log 'Não foi possível descobrir o contêiner do Container App.'
+      log 'Não foi possível descobrir o contêiner do Container App. Contêineres atuais:'
+      docker ps --format '{{.Names}}' >&2
       exit 1
     fi
     if ! resposta="$(esperar_saude curl -s --max-time 10 "http://${ip_ca}:3000/api")"; then
-      log 'A aplicação não respondeu no tempo esperado.'
+      log 'A aplicação não respondeu no tempo esperado. Logs do contêiner:'
+      docker logs "$conteiner_ca" 2>&1 | tail -20 >&2
       exit 1
     fi
   fi
@@ -224,14 +226,16 @@ EOF
   if ! resposta="$(ESPERAR_TENTATIVAS=3 esperar_saude curl -s --max-time 10 -H "Host: ${fqdn}" "http://localhost:${porta_gcp}/api")"; then
     log 'O ingresso emulado não repassa a requisição; conferindo o contêiner do Cloud Run diretamente.'
     local conteiner_cr ip_cr
-    conteiner_cr="$(docker ps --format '{{.Names}}' | grep -- '^floci-gcp-cloudrun-ludus-local-' | head -1)"
+    conteiner_cr="$(docker ps --format '{{.Names}}' | grep -E 'cloudrun-ludus-local' | head -1)"
     ip_cr="$(ip_do_conteiner "$conteiner_cr")"
     if [ -z "$ip_cr" ]; then
-      log 'Não foi possível descobrir o contêiner do Cloud Run.'
+      log 'Não foi possível descobrir o contêiner do Cloud Run. Contêineres atuais:'
+      docker ps --format '{{.Names}}' >&2
       exit 1
     fi
     if ! resposta="$(esperar_saude curl -s --max-time 10 "http://${ip_cr}:3000/api")"; then
-      log 'A aplicação não respondeu no tempo esperado.'
+      log 'A aplicação não respondeu no tempo esperado. Logs do contêiner:'
+      docker logs "$conteiner_cr" 2>&1 | tail -20 >&2
       exit 1
     fi
   fi
