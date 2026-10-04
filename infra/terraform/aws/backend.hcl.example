@@ -1,0 +1,8 @@
+# Exemplo de backend remoto. Crie o bucket e use o lockfile antes de rodar
+# terraform init -backend-config=backend.hcl.
+
+bucket       = "ludus-tfstate-000000000000"
+key          = "ludus/aws/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true

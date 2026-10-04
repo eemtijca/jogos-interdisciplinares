@@ -1,0 +1,8 @@
+# Exemplo de produção. Copie para terraform.tfvars e ajuste os valores.
+
+modo_local       = false
+projeto          = "ludus-prod"
+regiao           = "us-central1"
+ambiente         = "prod"
+imagem_aplicacao = "us-central1-docker.pkg.dev/ludus-prod/ludus-prod:versao"
+emails_alarme    = ["operacao@exemplo.br"]

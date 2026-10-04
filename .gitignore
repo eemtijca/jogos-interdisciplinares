@@ -56,3 +56,14 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.local
+!*.tfvars.example
+crash.log
+crash.*.log
