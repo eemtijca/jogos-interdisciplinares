@@ -14,7 +14,13 @@
     "test:e2e:install": "playwright install --with-deps chromium",
     "capturas:readme": "playwright test tests/e2e/imagens.spec.ts",
     "capturas:readme:docker": "node scripts/playwright-container.mjs tests/e2e/imagens.spec.ts",
-    "etiquetas:sync": "node scripts/sincronizar-etiquetas.mjs"
+    "etiquetas:sync": "node scripts/sincronizar-etiquetas.mjs",
+    "infra:fmt": "terraform fmt -recursive infra/terraform",
+    "infra:validar": "bash infra/terraform/validar.sh",
+    "infra:floci": "bash infra/floci/testar.sh",
+    "infra:floci:aws": "bash infra/floci/testar.sh aws",
+    "infra:floci:azure": "bash infra/floci/testar.sh azure",
+    "infra:floci:gcp": "bash infra/floci/testar.sh gcp"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

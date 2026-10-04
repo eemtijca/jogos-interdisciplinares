@@ -34,6 +34,7 @@
       - any-glob-to-any-file:
           - '.github/**'
           - '.devcontainer/**'
+          - 'docs/**'
           - 'public/**'
           - 'scripts/**'
           - 'src/app/api/**'
@@ -44,3 +45,10 @@
           - 'eslint.config.mjs'
           - 'next.config.ts'
           - 'tsconfig.json'
+
+'area: infra':
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.dockerignore'
+          - 'Dockerfile'
+          - 'infra/**'

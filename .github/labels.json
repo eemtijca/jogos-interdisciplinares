@@ -71,6 +71,11 @@
       "descricao": "Plataforma, navegação, componentes e infraestrutura."
     },
     {
+      "nome": "area: infra",
+      "cor": "d4c5f9",
+      "descricao": "Infraestrutura, contêineres e implantação em nuvem."
+    },
+    {
       "nome": "prioridade: alta",
       "cor": "b60205",
       "descricao": "Deve ser tratada em seguida."

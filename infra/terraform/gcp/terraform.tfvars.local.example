@@ -1,0 +1,7 @@
+# Exemplo do modo local com o emulador floci-gcp. Use com:
+# GOOGLE_OAUTH_ACCESS_TOKEN=floci terraform apply -var-file=terraform.tfvars.local
+
+modo_local       = true
+ambiente         = "local"
+imagem_aplicacao = "ludus:local"
+habilitar_alarmes = false

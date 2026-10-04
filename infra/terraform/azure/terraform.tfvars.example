@@ -1,0 +1,10 @@
+# Exemplo de produção. Copie para terraform.tfvars e ajuste os valores.
+
+modo_local     = false
+localizacao    = "brazilsouth"
+ambiente       = "prod"
+imagem_aplicacao = "ludusprodacr.azurecr.io/ludus-prod:versao"
+dominio        = "ludus.exemplo.br"
+sku_app_service = "P1v3"
+emails_alarme  = ["operacao@exemplo.br"]
+retencao_logs_dias = 30

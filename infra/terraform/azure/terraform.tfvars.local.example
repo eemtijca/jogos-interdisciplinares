@@ -1,0 +1,9 @@
+# Exemplo do modo local com o emulador floci-az. Use com:
+# terraform apply -var-file=terraform.tfvars.local
+
+modo_local         = true
+ambiente           = "local"
+imagem_aplicacao   = "ludus:local"
+desired_count      = 1
+retencao_logs_dias = 30
+habilitar_alarmes  = false
