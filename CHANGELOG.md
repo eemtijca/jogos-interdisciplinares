@@ -29,6 +29,11 @@ Próxima versão minor: 1.1.0. Alterações aditivas com preservação do progre
 - AGENTS.md, CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md e CHANGELOG.md.
 - Templates de pull request e de issues (Bug e Melhoria) no padrão do GitHub.
 - Devcontainer com Node 24, Docker e GitHub CLI.
+- Imagem Docker da aplicação em estágios, com a saída `standalone`, healthcheck em `GET /api` e execução sem privilégios.
+- Módulos Terraform para AWS, Azure e GCP em `infra/terraform`, com modo local apoiado nos emuladores do Floci e modo de produção sem banco, storage ou cache.
+- Harness `infra/floci` com Compose dos emuladores e script de aplicação, verificação e destruição por nuvem.
+- Workflow `infra.yml` para formatar, validar e aplicar o Terraform no Floci, e scripts npm `infra:fmt`, `infra:validar` e `infra:floci` com variantes por nuvem.
+- Documento `docs/implantacao-nuvem.md` e etiqueta `area: infra` no catálogo de etiquetas.
 
 ### Modificado
 
