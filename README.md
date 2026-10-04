@@ -280,7 +280,7 @@ Não há servidor de aplicação nem banco de dados; a superfície exposta é o 
 
 ## Roadmap
 
-A próxima versão minor é a 1.1.0, com as mudanças registradas no [CHANGELOG.md](CHANGELOG.md). Depois dela, as propostas seguem nas [issues do repositório](https://github.com/eemtijca/ludus/issues).
+A próxima versão é a 1.0.0, com as mudanças registradas no [CHANGELOG.md](CHANGELOG.md). Depois dela, as propostas seguem nas [issues do repositório](https://github.com/eemtijca/ludus/issues).
 
 ## Perguntas frequentes
 

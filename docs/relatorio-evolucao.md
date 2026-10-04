@@ -1,6 +1,6 @@
 # Relatório de evolução do Ludus
 
-Data: 2026-10-02. Base examinada: commit `69eb5b74fb85fc4d43f62441c9f5c1b95ba0c881`. Branch de trabalho: `codex/evolucao-investigativa`. Versão de desenvolvimento: 1.1.0, ainda não publicada.
+Data: 2026-10-02. Base examinada: commit `69eb5b74fb85fc4d43f62441c9f5c1b95ba0c881`. Branch de trabalho: `codex/evolucao-investigativa`. Versão de desenvolvimento: 0.1.0, ainda não publicada.
 
 ## Resultado e alcance
 
