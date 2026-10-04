@@ -6,7 +6,7 @@ Ludus: aplicação web de 20 jogos de investigação para o ensino médio, com c
 
 - Leia o `CONTRIBUTING.md` antes de qualquer mudança: ele reúne o fluxo de issues, etiquetas, branches, commits, pull requests, padrões de código, acessibilidade e testes.
 - O `next.config.ts` define `typescript.ignoreBuildErrors: true` e `reactStrictMode: false`; rode `npm run tsc` e `npm run lint` em toda mudança.
-- Commits seguem Conventional Commits em português, no imperativo, com escopo opcional: `fix(jogo): corrige ...`. Branches usam `tipo/descricao-curta`; branches de agentes usam o prefixo do agente (`ai/`, `claude/`, `codex/`, `copilot/` ou `cursor/`).
+- Commits seguem Conventional Commits em português, no imperativo, com escopo opcional: `fix(jogo): corrige ...`. Branches usam `tipo/descricao-curta`, inclusive as criadas por agentes de IA; a autoria assistida fica no rodapé `Assisted-by` do commit.
 - O gerenciador é npm, com `package-lock.json`; não use bun, yarn nem pnpm.
 - Nomes de domínio em português (`jogos`, `fases`, `selos`), termos de infraestrutura em inglês quando consagrados (`build`, `standalone`).
 - A suíte de fumaça do Playwright roda primariamente em contêiner: `npm run test:e2e:docker`.
