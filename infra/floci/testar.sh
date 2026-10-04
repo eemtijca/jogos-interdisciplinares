@@ -232,15 +232,25 @@ EOF
   # h2c e o servidor do Next.js encerra o socket sem resposta.
   if ! resposta="$(ESPERAR_TENTATIVAS=3 esperar_saude curl -s --max-time 10 -H "Host: ${fqdn}" "http://localhost:${porta_gcp}/api")"; then
     log 'O ingresso emulado não repassa a requisição; conferindo o contêiner do Cloud Run diretamente.'
-    local conteiner_cr ip_cr
+    local conteiner_cr porta_cr resposta
     conteiner_cr="$(docker ps --format '{{.Names}}' | grep -E 'cloudrun-ludus-local' | head -1)"
-    ip_cr="$(ip_do_conteiner "$conteiner_cr")"
-    if [ -z "$ip_cr" ]; then
+    if [ -z "$conteiner_cr" ]; then
       log 'Não foi possível descobrir o contêiner do Cloud Run. Contêineres atuais:'
       docker ps --format '{{.Names}}' >&2
       exit 1
     fi
-    if ! resposta="$(esperar_saude curl -s --max-time 10 "http://${ip_cr}:3000/api")"; then
+    porta_cr="$(docker inspect "$conteiner_cr" \
+      --format '{{(index (index .NetworkSettings.Ports "3000/tcp") 0).HostPort}}' 2>/dev/null || true)"
+    if [ -z "$porta_cr" ] || [ "$porta_cr" = '<no value>' ]; then
+      local ip_cr
+      ip_cr="$(ip_do_conteiner "$conteiner_cr")"
+      porta_cr='3000'
+      if ! resposta="$(esperar_saude curl -s --max-time 10 "http://${ip_cr}:${porta_cr}/api")"; then
+        log 'A aplicação não respondeu no tempo esperado. Logs do contêiner:'
+        docker logs "$conteiner_cr" 2>&1 | tail -20 >&2
+        exit 1
+      fi
+    elif ! resposta="$(esperar_saude curl -s --max-time 10 "http://localhost:${porta_cr}/api")"; then
       log 'A aplicação não respondeu no tempo esperado. Logs do contêiner:'
       docker logs "$conteiner_cr" 2>&1 | tail -20 >&2
       exit 1
