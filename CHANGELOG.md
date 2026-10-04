@@ -6,7 +6,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não publicado]
 
-Próxima versão minor: 1.1.0. Alterações aditivas com preservação do progresso local da versão 1.
+Versão de desenvolvimento fixada em 0.1.0. A primeira release será a `v1.0.0`; as mudanças desta seção preservam o progresso local existente.
 
 ### Adicionado
 

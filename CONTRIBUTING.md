@@ -271,10 +271,12 @@ O [README.md](README.md) é a fonte principal: mantenha a stack, os scripts, a a
 
 As mudanças relevantes são registradas em [CHANGELOG.md](CHANGELOG.md), no formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), com versionamento semântico. Mova as entradas da seção Não publicado para a versão correspondente ao publicar.
 
+Enquanto a primeira versão pública não é lançada, a versão do projeto permanece fixada em `0.1.0` e as mudanças ficam na seção Não publicado. A primeira release será a `v1.0.0`; a partir dela, o versionamento semântico passa a reger as versões.
+
 Crie releases pelo GitHub CLI:
 
 ```bash
-gh release create v1.1.0 --generate-notes
+gh release create vX.Y.Z --generate-notes
 ```
 
 ## Suporte e dúvidas
