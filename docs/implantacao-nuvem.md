@@ -41,7 +41,7 @@ infra/
     gcp/
 ```
 
-Cada módulo tem `versions.tf`, `providers.tf`, `variables.tf`, `locals.tf`, os recursos separados por assunto, `outputs.tf` e os exemplos `terraform.tfvars.example`, `terraform.tfvars.local.example` e, na AWS, `backend.hcl.example`. Os arquivos `.tfvars` reais não são versionados.
+Cada módulo tem `versions.tf`, `providers.tf`, `variables.tf`, `locals.tf`, os recursos separados por assunto, `outputs.tf` e os exemplos `terraform.tfvars.example`, `terraform.tfvars.local.example` e `backend.hcl.example` em cada nuvem. Os arquivos `.tfvars` reais não são versionados.
 
 A imagem da aplicação é definida na raiz do repositório: o `Dockerfile` compila o Next.js em estágios e executa a saída `standalone` com o usuário `node` na porta 3000.
 
@@ -62,7 +62,7 @@ O script `infra/floci/testar.sh` constrói a imagem `ludus:local` quando necess�
 
 1. Publique a imagem no registro da nuvem e informe `imagem_aplicacao`.
 2. Copie `terraform.tfvars.example` para `terraform.tfvars` e ajuste os valores. Na AWS, informe também `certificado_arn`; o balanceador só encaminha HTTP na ausência do certificado no modo local.
-3. Configure o backend remoto. Na AWS há um exemplo em `backend.hcl.example` com bucket versionado, criptografia e lockfile; no Azure e no GCP use o backend nativo correspondente.
+3. Configure o backend remoto. Cada nuvem tem um exemplo em `backend.hcl.example`: na AWS com bucket versionado, criptografia e lockfile; no Azure com conta de armazenamento e autenticação do Entra ID; no GCP com bucket versionado.
 4. Rode `terraform init` e `terraform plan` e revise o plano antes de aplicar. O repositório não aplica em produção por conta própria.
 
 Sem banco e sem segredos, não há migrações nem rotação de credenciais: o primeiro deploy pode escalar direto para a quantidade desejada de réplicas.
@@ -82,4 +82,4 @@ Sem banco e sem segredos, não há migrações nem rotação de credenciais: o p
 - O balanceador e o App Service só aceitam HTTPS em produção; a porta 80 redireciona para 443 na AWS.
 - As tarefas ECS ficam em sub-redes privadas com grupos de segurança encadeados, sem portas de aplicação expostas.
 - As roles seguem o menor privilégio, com escopo nos recursos criados pelo módulo.
-- O domínio próprio é opcional. Sem ele, o TLS usa os endpoints gerenciados de cada plataforma.
+- O domínio próprio é opcional. Sem ele, o TLS usa os endpoints gerenciados de cada plataforma. Na AWS o alias é criado no Route 53 quando `dominio` e `zona_hospedada_id` são informados, junto do `certificado_arn` validado. No Azure e no GCP o binding do hostname com certificado gerenciado acontece fora do Terraform; nesses dois provedores a variável `dominio` apenas compõe o `APP_URL` e deve ser preenchida depois do binding.
