@@ -106,7 +106,7 @@ Observação: o `next.config.ts` ignora erros de tipo no build, por isso a checa
 | Estado      | Zustand para progresso e external store para preferências     |
 | Matemática  | MathJax 3 com mhchem, servido localmente em `public/mathjax`  |
 | Ícones      | Lucide React com registro central por nome                    |
-| Tipografia  | Baloo 2 (títulos) e Nunito (corpo) via `next/font`            |
+| Tipografia  | Baloo 2 (títulos) e Nunito (corpo) com `next/font/local`      |
 | Voz         | Web Speech API em pt-BR                                       |
 | Som         | Web Audio API com efeitos sintetizados, sem arquivos de áudio |
 
