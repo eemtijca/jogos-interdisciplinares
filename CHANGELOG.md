@@ -54,3 +54,4 @@ Versão de desenvolvimento fixada em 0.1.0. A primeira release será a `v1.0.0`;
 - Estado do botão de voz após interrupção ou ausência de suporte.
 - Cancelamento da leitura do feedback quando sua resposta muda, sem interromper a leitura pertencente a outro botão.
 - Confirmação de exclusão de progresso com opção explícita de manter os registros.
+- Fontes Baloo 2 e Nunito servidas de arquivos locais (subset latino, licenças OFL), eliminando a consulta ao Google Fonts no desenvolvimento e no build e a falha intermitente do `next/font/google` com o Turbopack ([vercel/next.js#99114](https://github.com/vercel/next.js/issues/99114)).
